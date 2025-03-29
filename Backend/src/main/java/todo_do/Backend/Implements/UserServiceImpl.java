@@ -12,33 +12,36 @@ import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserServices {
+
     @Autowired
     private UserRepository userRepository;
+
     @Override
-    public List<User>getUser(){
-        var user =userRepository.findAll();
+    public List<User> getUser() {
+        return userRepository.findAll();
     }
+
     @Override
-    public void insertUser(User user){
+    public void insertUser(User user) {
         userRepository.save(user);
     }
-    @Override
-    public void updateUser(UUID id,User user) throws Exception {
-        Optional<User> userExist= userRepository.findById(id);
-    if(userExist.isPresent()){
-        User userExists = userExist.get();
 
-        if (user.getPassword() != null) {
-            userExists.setPassword(user.getPassword());
+    @Override
+    public void updateUser(UUID id, User user) throws Exception {
+        Optional<User> userExist = userRepository.findById(id);
+        if (userExist.isPresent()) {
+            User userExists = userExist.get();
+            if (user.getPassword() != null) {
+                userExists.setPassword(user.getPassword());
+            }
+            userRepository.save(userExists);
+        } else {
+            throw new Exception("User not found");
         }
+    }
 
-        userRepository.save(userExists);
-    } else {
-        throw new Exception("User not found");
-    }
-    }
     @Override
-    public void deleteUser(User user ){
-    userRepository.delete(user);
-    };
+    public void deleteUser(UUID id) {
+        userRepository.findById(id).ifPresent(userRepository::delete);
+    }
 }
