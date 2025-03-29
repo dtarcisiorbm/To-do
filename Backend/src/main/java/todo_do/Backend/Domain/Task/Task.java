@@ -3,6 +3,7 @@ package todo_do.Backend.Domain.Task;
 
 import jakarta.persistence.*;
 import lombok.*;
+import todo_do.Backend.Domain.User.User;
 
 import java.util.UUID;
 
@@ -22,7 +23,9 @@ public class Task {
     String descrition;
     Boolean conlusion;
 
-
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     @PrePersist
     private void gerarDados() {
         if (id == null) {

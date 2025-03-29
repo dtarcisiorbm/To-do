@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository <User, UUID> {
 
 
-    void delete(Optional<User> userExist);
+
 }
