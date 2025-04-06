@@ -14,15 +14,18 @@ public class JWTUserProvider {
     @Value("${security.token.secret}")
     private String secretkey;
 
+
     public DecodedJWT validateToken(String token){
+        System.out.println(token);
         token=token.replace("Bearer","");
         Algorithm algorithm=Algorithm.HMAC256(secretkey);
 
         try {
             var tokenDecoder= JWT.require(algorithm).build().verify(token);
+
             return tokenDecoder;
         } catch (JWTVerificationException e) {
-            e.printStackTrace();
+            e.printStackTrace( );
             return null;
         }
 

@@ -30,23 +30,32 @@ public class AuthUserServiceImpl implements AuthUserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public AuthUserResponseDTO execute(AuthUserRequestDTO authCandidateRequestDTO) throws AuthenticationException {
-        var candidate = userRepository.findByUsername(authCandidateRequestDTO.username())
+    public AuthUserResponseDTO execute(AuthUserRequestDTO authUserRequestDTO) throws AuthenticationException {
+        System.out.println("Tentando autenticar: " + authUserRequestDTO.username());
+
+        var user = userRepository.findByUsername(authUserRequestDTO.username())
                 .orElseThrow(() -> new UsernameNotFoundException("Username/password incorrect"));
 
-        if (!passwordEncoder.matches(authCandidateRequestDTO.password(), candidate.getPassword())) {
-            throw new AuthenticationException();
+        System.out.println("Usuário encontrado: " + user.getUsername());
+
+        boolean senhaValida = passwordEncoder.matches(authUserRequestDTO.password(), user.getPassword());
+        System.out.println("Senha válida? " + senhaValida);
+
+        if (!senhaValida) {
+            throw new AuthenticationException("Senha inválida");
         }
 
         Instant expiresIn = Instant.now().plus(Duration.ofMinutes(10));
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         String token = JWT.create()
-                .withIssuer("javagas")
-                .withClaim("roles", Collections.singletonList("CANDIDATE"))
+                .withIssuer("todo123#")
+                .withClaim("roles", Collections.singletonList("USER"))
                 .withExpiresAt(expiresIn)
-                .withSubject(candidate.getId().toString())
+                .withSubject(user.getId().toString())
                 .sign(algorithm);
+
+        System.out.println("Token gerado com sucesso!");
 
         return AuthUserResponseDTO.builder()
                 .accessToken(token)

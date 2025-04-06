@@ -19,31 +19,36 @@ public class SecurityUserFilter extends OncePerRequestFilter {
     @Autowired
     private JWTUserProvider jwtUserProvider;
 
+
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        String header = request.getHeader("Authorization");
-
-        if (request.getRequestURI().startsWith("/user")) {
-            if (header != null) {
-                var token = this.jwtUserProvider.validateToken(header);
-
-                if (token == null) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-                request.setAttribute("user_id", token.getSubject());
-                var roles = token.getClaim("roles").asList(Object.class);
-
-                var grants = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase())).toList();
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(token.getSubject(), null, grants);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
-
-            filterChain.doFilter(request, response);
-        }
-
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/user");
     }
 
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String header = request.getHeader("Authorization");
+
+        if (header != null) {
+            var token = jwtUserProvider.validateToken(header);
+
+            if (token == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            request.setAttribute("user_id", token.getSubject());
+            var roles = token.getClaim("roles").asList(Object.class);
+            var grants = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase()))
+                    .toList();
+            var auth = new UsernamePasswordAuthenticationToken(token.getSubject(), null, grants);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
+
+        filterChain.doFilter(request, response);
+    }
 }

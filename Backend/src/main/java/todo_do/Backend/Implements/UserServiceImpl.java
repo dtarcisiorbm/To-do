@@ -1,6 +1,7 @@
 package todo_do.Backend.Implements;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.Domain.User.User;
 import todo_do.Backend.Repository.UserRepository;
@@ -16,6 +17,9 @@ public class UserServiceImpl implements UserServices {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public List<User> getUser() {
         return userRepository.findAll();
@@ -23,6 +27,13 @@ public class UserServiceImpl implements UserServices {
 
     @Override
     public void insertUser(User user) {
+        System.out.println(user +"User service");
+        // Criptografa a senha antes de salvar
+        if (user.getPassword() != null) {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+        }
+
         userRepository.save(user);
     }
 
@@ -31,9 +42,12 @@ public class UserServiceImpl implements UserServices {
         Optional<User> userExist = userRepository.findById(id);
         if (userExist.isPresent()) {
             User userExists = userExist.get();
+
             if (user.getPassword() != null) {
-                userExists.setPassword(user.getPassword());
+                String encodedPassword = passwordEncoder.encode(user.getPassword());
+                userExists.setPassword(encodedPassword);
             }
+
             userRepository.save(userExists);
         } else {
             throw new Exception("User not found");
