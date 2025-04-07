@@ -16,9 +16,9 @@ public class JWTUserProvider {
 
 
     public DecodedJWT validateToken(String token){
-        System.out.println(token);
-        token=token.replace("Bearer","");
+        token=token.replace("Bearer","").trim();
         Algorithm algorithm=Algorithm.HMAC256(secretkey);
+        System.out.println(token);
 
         try {
             var tokenDecoder= JWT.require(algorithm).build().verify(token);

@@ -2,6 +2,7 @@ package todo_do.Backend.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Services.TaskServices;
@@ -10,17 +11,17 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/task")
+@RequestMapping("/task")
 public class TaskController {
     @Autowired
     private TaskServices taskServices;
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
         var tasks = taskServices.getTask();
         return ResponseEntity.ok(tasks);
     }
-
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<String> insertTask(@RequestBody Task taskDetails) {
         try {
@@ -30,7 +31,7 @@ public class TaskController {
             throw new RuntimeException("Error creating task: " + e.getMessage());
         }
     }
-
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTask(@PathVariable UUID id, @RequestBody Task taskDetails) {
         try {
@@ -40,7 +41,7 @@ public class TaskController {
             throw new RuntimeException("Error updating task: " + e.getMessage());
         }
     }
-
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
         taskServices.deleteTask(id);

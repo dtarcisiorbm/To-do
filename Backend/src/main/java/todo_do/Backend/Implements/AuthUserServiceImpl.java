@@ -55,7 +55,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .withSubject(user.getId().toString())
                 .sign(algorithm);
 
-        System.out.println("Token gerado com sucesso!");
+        System.out.println("Token gerado com sucesso!"+token);
 
         return AuthUserResponseDTO.builder()
                 .accessToken(token)
