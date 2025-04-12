@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface TaskServices {
     List<Task> getTask();
+    List<Task> getTaskForUser(UUID userId);
     void insertTask(Task task);
     void updateTask(UUID id, Task task) throws Exception;
     ResponseEntity<String> deleteTask(UUID id);

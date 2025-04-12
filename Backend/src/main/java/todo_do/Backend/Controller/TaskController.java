@@ -22,6 +22,13 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
     @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Task>> getTasksForUser(@PathVariable UUID userId) {
+        var tasks = taskServices.getTaskForUser(userId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<String> insertTask(@RequestBody Task taskDetails) {
         try {

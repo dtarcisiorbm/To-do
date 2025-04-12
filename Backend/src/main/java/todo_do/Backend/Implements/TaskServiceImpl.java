@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Repository.TaskRepository;
+import todo_do.Backend.Repository.UserRepository;
 import todo_do.Backend.Services.TaskServices;
 
 import java.util.List;
@@ -15,10 +16,27 @@ import java.util.UUID;
 public class TaskServiceImpl implements TaskServices {
     @Autowired
     private TaskRepository taskRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public List<Task> getTask() {
         return taskRepository.findAll();
+    }
+
+    @Override
+    public List<Task> getTaskForUser(UUID userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
+        }
+
+        List<Task> tasks = taskRepository.findByUserIdAndDeletedFalse(userId);
+
+        if (tasks.isEmpty()) {
+            System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
+        }
+
+        return tasks;
     }
 
     @Override
