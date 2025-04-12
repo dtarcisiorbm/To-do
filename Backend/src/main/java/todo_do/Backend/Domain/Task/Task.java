@@ -26,7 +26,7 @@ public class Task {
     @NotBlank()
     String title;
     String descrition;
-    Boolean conlusion;
+    Boolean conlusion=false;
     private Boolean deleted = false;
 
     @ManyToOne

@@ -27,6 +27,12 @@ public class TaskController {
         var tasks = taskServices.getTaskForUser(userId);
         return ResponseEntity.ok(tasks);
     }
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{userId}/{status}")
+    public ResponseEntity<List<Task>> getTaskForUserStatusCondition(@PathVariable UUID userId,@PathVariable String status) {
+        var tasks = taskServices.getTaskForUserStatusCondition(userId,status);
+        return ResponseEntity.ok(tasks);
+    }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping

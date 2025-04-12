@@ -27,8 +27,6 @@ public class UserServiceImpl implements UserServices {
 
     @Override
     public void insertUser(User user) {
-        System.out.println(user +"User service");
-        // Criptografa a senha antes de salvar
         if (user.getPassword() != null) {
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);

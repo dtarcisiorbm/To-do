@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.Domain.Task.Task;
+import todo_do.Backend.Exceptions.NotFoundTaskException;
 import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
 import todo_do.Backend.Services.TaskServices;
@@ -34,6 +35,21 @@ public class TaskServiceImpl implements TaskServices {
 
         if (tasks.isEmpty()) {
             System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
+        }
+
+        return tasks;
+    }
+
+    public List<Task> getTaskForUserStatusCondition(UUID userId,String status) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
+        }
+
+        List<Task> tasks = taskRepository.findByUserIdAndConlusion(userId, Boolean.valueOf(status));
+
+        if (tasks.isEmpty()) {
+            throw new NotFoundTaskException("Tarefa não encontrada!");
         }
 
         return tasks;
