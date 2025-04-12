@@ -1,6 +1,7 @@
 package todo_do.Backend.Implements;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Repository.TaskRepository;
@@ -37,8 +38,17 @@ public class TaskServiceImpl implements TaskServices {
     }
 
     @Override
-    public void deleteTask(UUID id) {
-        Optional<Task> taskExist = taskRepository.findById(id);
-        taskExist.ifPresent(taskRepository::delete);
+    public ResponseEntity<String> deleteTask(UUID id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task não encontrada"));
+
+        task.setDeleted(true);
+        taskRepository.save(task);
+
+        return ResponseEntity.ok("Task deletada com sucesso!");
     }
+
+
+
+
 }

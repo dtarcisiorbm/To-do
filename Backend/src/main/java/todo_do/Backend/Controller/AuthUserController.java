@@ -23,7 +23,6 @@ public class AuthUserController {
 
     @PostMapping("/auth")
     public ResponseEntity<AuthUserResponseDTO> create(@RequestBody AuthUserRequestDTO authUserRequestDTO) {
-        System.out.println(authUserRequestDTO+"Controller");
         try {
             var result = this.authUserService.execute(authUserRequestDTO);
             return ResponseEntity.ok(result);

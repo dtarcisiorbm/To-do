@@ -31,15 +31,13 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     public AuthUserResponseDTO execute(AuthUserRequestDTO authUserRequestDTO) throws AuthenticationException {
-        System.out.println("Tentando autenticar: " + authUserRequestDTO.username());
 
         var user = userRepository.findByUsername(authUserRequestDTO.username())
                 .orElseThrow(() -> new UsernameNotFoundException("Username/password incorrect"));
 
-        System.out.println("Usuário encontrado: " + user.getUsername());
 
         boolean senhaValida = passwordEncoder.matches(authUserRequestDTO.password(), user.getPassword());
-        System.out.println("Senha válida? " + senhaValida);
+
 
         if (!senhaValida) {
             throw new AuthenticationException("Senha inválida");
@@ -54,8 +52,6 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .withExpiresAt(expiresIn)
                 .withSubject(user.getId().toString())
                 .sign(algorithm);
-
-        System.out.println("Token gerado com sucesso!"+token);
 
         return AuthUserResponseDTO.builder()
                 .accessToken(token)

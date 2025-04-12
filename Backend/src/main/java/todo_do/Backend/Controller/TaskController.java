@@ -43,8 +43,8 @@ public class TaskController {
     }
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
-        taskServices.deleteTask(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deletar(@PathVariable UUID id) {
+
+        return taskServices.deleteTask(id);
     }
 }
