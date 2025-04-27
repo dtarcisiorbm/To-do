@@ -31,6 +31,8 @@ public class TaskServiceImpl implements TaskServices {
             throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
         }
 
+
+
         List<Task> tasks = taskRepository.findByUserIdAndDeletedFalse(userId);
 
         if (tasks.isEmpty()) {

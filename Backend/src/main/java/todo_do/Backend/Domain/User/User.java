@@ -33,6 +33,10 @@ public class User {
     @Length(min = 10, max = 100)
     String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private role role;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -40,7 +44,6 @@ public class User {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
 
     @PrePersist
     private void gerarDados() {
