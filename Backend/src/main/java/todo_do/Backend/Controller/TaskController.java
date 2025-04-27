@@ -10,9 +10,10 @@ import todo_do.Backend.Services.TaskServices;
 
 import java.util.List;
 import java.util.UUID;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 @RestController
 @RequestMapping("/task")
+@SecurityRequirement(name = "bearerAuth")
 public class TaskController {
     @Autowired
     private EmailServices emailServices;

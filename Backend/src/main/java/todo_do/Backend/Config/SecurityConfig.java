@@ -23,6 +23,13 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
+                    auth
+                            // 🚀 LIBERA SWAGGER
+                            .requestMatchers(
+                                    "/v3/api-docs/**",
+                                    "/swagger-ui/**",
+                                    "/swagger-ui.html"
+                            ).permitAll();
                     // Libera /user/** para qualquer um
                     auth.requestMatchers("/user/**").permitAll();
 
@@ -31,6 +38,8 @@ public class SecurityConfig {
 
                     // Qualquer outra rota exige autenticação
                     auth.anyRequest().authenticated();
+
+
                 })
                 .addFilterBefore(securityUserFilter, BasicAuthenticationFilter.class);
 

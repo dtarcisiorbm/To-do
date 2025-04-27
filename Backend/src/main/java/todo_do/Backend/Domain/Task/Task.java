@@ -39,7 +39,6 @@ public class Task {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
     @PrePersist
     private void gerarDados() {
         if (id == null) {
