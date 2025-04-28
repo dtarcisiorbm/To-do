@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import todo_do.Backend.Domain.Category.Category;
 import todo_do.Backend.Domain.User.User;
 
 import java.time.LocalDateTime;
@@ -39,6 +40,9 @@ public class Task {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
     @PrePersist
     private void gerarDados() {
         if (id == null) {
