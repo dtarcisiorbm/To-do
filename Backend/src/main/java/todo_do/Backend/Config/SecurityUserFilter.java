@@ -19,17 +19,17 @@ public class SecurityUserFilter extends OncePerRequestFilter {
     @Autowired
     private JWTUserProvider jwtUserProvider;
 
-
-
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/user");
+        return path.startsWith("/user/auth") ||
+                path.startsWith("/user/register") ||
+                path.startsWith("/user/refresh");
     }
 
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String header = request.getHeader("Authorization");
 
         try {

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Services.EmailServices;
 import todo_do.Backend.Services.TaskServices;
@@ -30,7 +31,7 @@ public class TaskController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Task>> getTasksForUser(@PathVariable UUID userId) {
+    public ResponseEntity<List<TaskDTO>> getTasksForUser(@PathVariable UUID userId) {
         var tasks = taskServices.getTaskForUser(userId);
         return ResponseEntity.ok(tasks);
     }

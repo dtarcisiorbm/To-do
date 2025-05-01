@@ -25,9 +25,11 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @NotBlank()
-    String title;
-    String descrition;
-    Boolean conlusion=false;
+    private String title;
+    private String descrition;
+
+
+    private Boolean conlusion=false;
     private Boolean deleted = false;
 
     @ManyToOne
@@ -49,4 +51,5 @@ public class Task {
             this.id = java.util.UUID.randomUUID();
         }
     }
+
 }

@@ -10,7 +10,7 @@ public interface CategoryService {
 
     List<Category> findAll();
 
-    Category findById(Long id);
+  
 
     Category findById(UUID id);
 }

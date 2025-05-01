@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Getter
 @Data
 @NoArgsConstructor
@@ -25,11 +25,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @NotBlank()
     @Pattern(regexp = "\\S+", message = "O campo [username] não deve conter espaço!")
+    @Column(unique = true)
     String username;
+
     @Email(message = "O campo email deve conter um e-mail válido")
     String email;
+
     @Length(min = 10, max = 100)
     String password;
 

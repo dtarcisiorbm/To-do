@@ -3,7 +3,9 @@ package todo_do.Backend.Implements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
+import todo_do.Backend.Domain.User.User;
 import todo_do.Backend.Exceptions.NotFoundTaskException;
 import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
@@ -12,6 +14,7 @@ import todo_do.Backend.Services.TaskServices;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskServices {
@@ -25,21 +28,33 @@ public class TaskServiceImpl implements TaskServices {
     }
 
     @Override
-    public List<Task> getTaskForUser(UUID userId) {
+    public List<TaskDTO> getTaskForUser(UUID userId) {
 
-        if (!userRepository.existsById(userId)) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
+        } else {
+            List<Task> tasks = taskRepository.findByUserId(userId);
+
+            if (tasks.isEmpty()) {
+                System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
+            }
+
+            return tasks.stream().map(task -> new TaskDTO(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescrition(),
+                    task.getConlusion(),
+                    task.getDeleted(),
+                    task.getCreatedAt(),
+                    task.getUpdatedAt(),
+                    task.getUser().getId(),
+                    task.getUser().getUsername()
+            )).collect(Collectors.toList());
         }
 
 
-
-        List<Task> tasks = taskRepository.findByUserIdAndDeletedFalse(userId);
-
-        if (tasks.isEmpty()) {
-            System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
-        }
-
-        return tasks;
     }
 
     public List<Task> getTaskForUserStatusCondition(UUID userId,String status) {
