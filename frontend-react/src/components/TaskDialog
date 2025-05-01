@@ -1,0 +1,81 @@
+
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button }  from '@mui/material';
+import { Formik, Field, Form } from 'formik';
+import * as z from 'zod';
+import { zodToFormik } from 'zod-formik-adapter';
+
+// Definir o esquema de validação com Zod
+const taskSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+});
+
+// Tipos gerados automaticamente pelo Zod
+type TaskFormData = z.infer<typeof taskSchema>;
+
+interface TaskDialogProps {
+  open: boolean;
+  onClose: () => void;
+  task: any; // Ajuste o tipo conforme necessário
+  onSubmit: (values: TaskFormData) => void;
+}
+
+export const TaskDialog: React.FC<TaskDialogProps> = ({ open, onClose, task, onSubmit }) => {
+  // Inicializar os dados do formulário
+  const initialValues: TaskFormData = {
+    title: task?.title || '',
+    description: task?.description || '',
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        validationSchema={taskSchema}
+      >
+        {({ errors, touched, handleChange, values }) => (
+          <Form>
+            <DialogContent>
+              <Field
+                name="title"
+                label="Title"
+                variant="outlined"
+                fullWidth
+                margin="dense"
+                value={values.title}
+                onChange={handleChange}
+                as={TextField}
+                helperText={touched.title && errors.title ? errors.title : ''}
+                error={touched.title && Boolean(errors.title)}
+              />
+              <Field
+                name="description"
+                label="Description"
+                variant="outlined"
+                fullWidth
+                margin="dense"
+                multiline
+                rows={4}
+                value={values.description}
+                onChange={handleChange}
+                as={TextField}
+                helperText={touched.description && errors.description ? errors.description : ''}
+                error={touched.description && Boolean(errors.description)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={onClose}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">
+                {task ? 'Update' : 'Create'}
+              </Button>
+            </DialogActions>
+          </Form>
+        )}
+      </Formik>
+    </Dialog>
+  );
+};
+
+export default TaskDialog;

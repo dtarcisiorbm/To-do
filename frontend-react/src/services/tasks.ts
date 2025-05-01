@@ -55,9 +55,9 @@ class TaskService {
   }
 
   async getTasksForUser(userId: string): Promise<Task[]> {
-    console.log("Fetching tasks for user:", userId);
+ 
     const response = await api.get(`/task/${userId}`);
-    console.log("Tasks for user:", response.data);
+  
     return response.data;
   }
 
@@ -69,6 +69,7 @@ class TaskService {
   }
 
   async updateTask(id: string, data: UpdateTaskRequest): Promise<Task> {
+
     const response = await api.put(`/task/${id}`, data);
     return response.data;
   }

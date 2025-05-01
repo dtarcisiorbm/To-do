@@ -11,6 +11,7 @@ import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
 import todo_do.Backend.Services.TaskServices;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,11 +83,21 @@ public class TaskServiceImpl implements TaskServices {
         Optional<Task> taskExist = taskRepository.findById(id);
         if (taskExist.isPresent()) {
             Task taskExists = taskExist.get();
+
+            // Atualiza os campos necessários diretamente
+            taskExists.setTitle(task.getTitle());
+            taskExists.setDescrition(task.getDescrition());
+            taskExists.setConlusion(task.getConlusion());
+            taskExists.setDeleted(task.getDeleted());
+           
+
+            // Salva diretamente
             taskRepository.save(taskExists);
         } else {
             throw new Exception("Task not found");
         }
     }
+
 
     @Override
     public ResponseEntity<String> deleteTask(UUID id) {

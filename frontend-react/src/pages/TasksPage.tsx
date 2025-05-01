@@ -23,7 +23,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import type{ Task, CreateTaskRequest } from "../types";
 import { taskService } from "../services/tasks";
-import { useEffect, useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSidebar } from "../contexts/SidebarContext";
 
 import { TaskGrid } from "../components/TaskGrid";
@@ -35,9 +35,12 @@ interface TaskDialogProps {
   formData: CreateTaskRequest;
   setFormData: React.Dispatch<React.SetStateAction<CreateTaskRequest>>;
   onSubmit: () => void;
+  isLoading: boolean;
 }
 
-const TaskDialog: React.FC<TaskDialogProps> = ({ open, onClose, task, formData, setFormData, onSubmit }) => {
+const TaskDialog: React.FC<TaskDialogProps> = ({ open, onClose, task, formData, setFormData, onSubmit, isLoading }) => {
+  
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{task ? "Edit Task" : "Create New Task"}</DialogTitle>
@@ -62,8 +65,17 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ open, onClose, task, formData, 
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={onSubmit} variant="contained" color="primary">
-          {task ? "Update" : "Create"}
+        <Button 
+          onClick={onSubmit} 
+          variant="contained" 
+          color="primary"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <CircularProgress size={24} />
+          ) : (
+            task ? "Update" : "Create"
+          )}
         </Button>
       </DialogActions>
     </Dialog>
@@ -80,6 +92,7 @@ export const TasksPage = () => {
     title: "",
     description: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
   
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -123,24 +136,29 @@ export const TasksPage = () => {
   };
 
   const handleTaskCreate = async (data: CreateTaskRequest) => {
+    setIsLoading(true);
     try {
       await taskService.createTask({
         title: data.title,
         description: data.description,
       });
       await loadTasks();
+    } finally {
+      setIsLoading(false);
       handleDialogClose();
-    } catch (err) {
-      setError(`Failed to create task: ${(err as Error).message}`);
     }
   };
 
   const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
+    setIsLoading(true);
     try {
       await taskService.updateTask(taskId, updates);
       await loadTasks();
     } catch (err) {
       setError(`Failed to update task: ${(err as Error).message}`);
+    } finally {
+      setIsLoading(false);
+      handleDialogClose();
     }
   };
 
@@ -155,6 +173,7 @@ export const TasksPage = () => {
   };
 
   const handleStatusChange = async (taskId: string, updates: Partial<Task>) => {
+    console.log(taskId,updates)
     try {
       const updatedTask = await taskService.updateTask(taskId, updates);
       setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
@@ -234,6 +253,7 @@ export const TasksPage = () => {
         task={editingTask}
         formData={formData}
         setFormData={setFormData}
+        isLoading={isLoading}
         onSubmit={() => editingTask ? handleTaskUpdate(editingTask.id, formData) : handleTaskCreate(formData)}
       />
     </Box>

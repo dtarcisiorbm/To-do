@@ -5,11 +5,13 @@
     "rules": {
       "recommended": true,
       "errors": {
-        "no-unused-vars": "off",
-        "no-unused-expressions": "off",
-        "no-unreachable": "off",
-        "no-unused-labels": "off",
-        "no-empty": "off"
+        "no-unused-vars": "off",            // Desativa a verificação de variáveis não usadas
+        "no-unused-expressions": "off",     // Desativa a verificação de expressões não usadas
+        "no-unreachable": "off",            // Desativa a verificação de código inatingível
+        "no-unused-labels": "off",          // Desativa a verificação de labels não usados
+        "no-empty": "off",                  // Desativa a verificação de blocos vazios
+        "no-console": "off",                // Desativa o erro para `console.log` e afins (útil em dev)
+        "no-debugger": "off"                // Desativa o erro para o uso de `debugger`
       }
     }
   },
