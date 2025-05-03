@@ -104,7 +104,8 @@ export const TasksPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await taskService.getTasksForUser(user.id);
+      const response = await taskService.getTaskForUserStatusCondition(user.id, false);
+      console.log(response)
       setTasks(response);
     } catch (err) {
       setError(`Failed to load tasks: ${(err as Error).message}`);
@@ -165,7 +166,7 @@ export const TasksPage = () => {
   const handleTaskDelete = async (taskId: string) => {
     try {
       await taskService.deleteTask(taskId);
-      setTasks(tasks.filter(task => task.id !== taskId));
+      loadTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
       setError('Failed to delete task');
@@ -191,17 +192,7 @@ export const TasksPage = () => {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar />
-      <Box sx={{ flexGrow: 1, p: 3, mt: 8 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          {loading ? (
-            <CircularProgress />
-          ) : error ? (
-            <Alert severity="error">{error}</Alert>
-          ) : (
-            <TaskGrid tasks={tasks} onEdit={handleDialogOpen} onDelete={handleTaskDelete} onStatusChange={handleStatusChange} />
-          )}
-        </Box>
-      </Box>
+     
       <AppBar position="fixed">
         <Toolbar>
           <IconButton

@@ -1,21 +1,21 @@
-
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { CircularProgress } from "@mui/material";
 
 interface ProtectedRouteProps {
 	children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-	const { user, loading } = useAuth();
+	const { user, loading, isAuthenticated } = useAuth();
 
 	if (loading) {
-		return <div>Carregando...</div>;
+		return <CircularProgress />;
 	}
 
-	if (!user) {
-		return <Navigate to="/login" />;
+	if (!user || !isAuthenticated) {
+		return <Navigate to="/login" replace />;
 	}
 
-	return <>{children}</>;
+	return children;
 }

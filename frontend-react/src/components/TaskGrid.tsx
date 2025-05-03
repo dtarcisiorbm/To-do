@@ -23,6 +23,7 @@ interface TaskGridProps {
 }
 
 export const TaskGrid = ({ tasks, onEdit, onDelete, onStatusChange }: TaskGridProps) => {
+  console.log('Tasks:', tasks);
   return (
     <Grid container spacing={2}>
       {tasks.map((task) => (
@@ -70,9 +71,9 @@ export const TaskGrid = ({ tasks, onEdit, onDelete, onStatusChange }: TaskGridPr
                 <Box>
                   <Button
                     variant="outlined"
-                    color={task.conlusion ? "success" : "primary"}
+                    color={task.status === "COMPLETED" ? "success" : "primary"}
                     startIcon={
-                      task.conlusion ? (
+                      task.status === "COMPLETED" ? (
                         <CheckCircleIcon />
                       ) : (
                         <HourglassEmptyIcon />
@@ -81,11 +82,11 @@ export const TaskGrid = ({ tasks, onEdit, onDelete, onStatusChange }: TaskGridPr
                     onClick={() =>
                       onStatusChange(task.id, {
                         ...task,
-                        conlusion: !task.conlusion
+                        status: task.status === "COMPLETED" ? "PENDING" : "COMPLETED"
                       })
                     }
                   >
-                    {task.conlusion ? "Concluído" : "Pendente"}
+                    {task.status === "COMPLETED" ? "Concluído" : "Pendente"}
                   </Button>
                 </Box>
                 <Typography variant="body2" color="text.secondary">

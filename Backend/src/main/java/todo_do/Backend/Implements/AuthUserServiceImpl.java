@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.DTO.AuthUserRequestDTO;
 import todo_do.Backend.DTO.AuthUserResponseDTO;
+import todo_do.Backend.DTO.UserDTO;
 import todo_do.Backend.Domain.User.User;
 import todo_do.Backend.Domain.User.role;
 import todo_do.Backend.Repository.UserRepository;
@@ -87,7 +88,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .expires_in(expiresIn.toEpochMilli())
-                .user(user)
+                .user(new UserDTO(user.getId(),user.getUsername(),user.getEmail(),user.getRole()))
                 .build();
     }
 

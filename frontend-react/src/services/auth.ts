@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080";
+const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:8080';
 
 // Criar uma instância do axios com configurações padrão
 const api = axios.create({
@@ -62,7 +62,6 @@ class AuthService {
   async login(data: LoginRequest): Promise<AuthResponse> {
     const response = await api.post("/user/auth", data);
     const responseData = response.data;
-
     console.log("Login API Response:", responseData); // Debug log
 
     if (responseData.accessToken) {
@@ -72,11 +71,11 @@ class AuthService {
         "tokenExpiration",
         responseData.expires_in.toString()
       );
-
+      localStorage.setItem("user", JSON.stringify(response.data.user));
       // Fetch user data after successful login
       const userData = await this.fetchUserData();
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("userId", userData.id);
+     
+     
 
       return {
         ...responseData,
@@ -100,10 +99,10 @@ class AuthService {
         "tokenExpiration",
         responseData.expires_in.toString()
       );
-
+      localStorage.setItem("user", JSON.stringify(response.data.user));
       // Fetch user data after successful registration
       const userData = await this.fetchUserData();
-      localStorage.setItem("user", JSON.stringify(userData));
+
       localStorage.setItem("userId", userData.id);
 
       return {
@@ -123,7 +122,6 @@ class AuthService {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("tokenExpiration");
       localStorage.removeItem("user");
-      localStorage.removeItem("userId");
     }
   }
 
@@ -132,7 +130,7 @@ class AuthService {
   }
 
   getUserId() {
-    return localStorage.getItem("userId");
+    return localStorage.getItem("user");
   }
 
   isTokenExpired() {

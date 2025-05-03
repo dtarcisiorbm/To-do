@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getToken } from "./auth";
+import { User } from "../types";
 
 const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:8080';
 
@@ -29,12 +30,17 @@ export interface Task {
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
   createdAt: string;
   updatedAt: string;
-  userId: string;
+  user: {
+    id:string
+  };
 }
 
 export interface CreateTaskRequest {
   title: string;
   description: string;
+  user: {
+    id:string
+  };
 }
 
 export interface UpdateTaskRequest {
@@ -54,16 +60,16 @@ class TaskService {
     return response.data;
   }
 
-  async getTasksForUser(userId: string): Promise<Task[]> {
+  async getTaskForUserStatusCondition(userId: string, status: boolean): Promise<Task[]> {
  
-    const response = await api.get(`/task/${userId}`);
+    const response = await api.get(`/task/${userId}/${status}`);
   
     return response.data;
   }
 
 
   async createTask(data: CreateTaskRequest): Promise<Task> {
-    console.log("Creating task:", data);
+  
     const response = await api.post("/task", data);
     return response.data;
   }

@@ -37,7 +37,7 @@ public class TaskController {
     }
 
     @GetMapping("/{userId}/{status}")
-    public ResponseEntity<List<Task>> getTaskForUserStatusCondition(@PathVariable UUID userId,@PathVariable String status) {
+    public ResponseEntity<List<TaskDTO>> getTaskForUserStatusCondition(@PathVariable UUID userId,@PathVariable String status) {
         var tasks = taskServices.getTaskForUserStatusCondition(userId,status);
         return ResponseEntity.ok(tasks);
     }

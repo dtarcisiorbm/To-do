@@ -66,12 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const login = async (username: string, password: string) => {
 		const response = await authService.login({ username, password });
+	
 		setUser(response.user);
 		setIsAuthenticated(true);
 	};
 
 	const register = async (name: string, username: string, password: string) => {
 		const response = await authService.register({ name, username, password });
+		
+		localStorage.setItem("user", JSON.stringify(response.user));
 		setUser(response.user);
 		setIsAuthenticated(true);
 	};
@@ -79,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const logout = () => {
 		authService.logout();
 		setUser(null);
+		localStorage.removeItem("user");
 		setIsAuthenticated(false);
 	};
 

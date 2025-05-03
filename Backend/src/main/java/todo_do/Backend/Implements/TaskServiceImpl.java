@@ -58,19 +58,31 @@ public class TaskServiceImpl implements TaskServices {
 
     }
 
-    public List<Task> getTaskForUserStatusCondition(UUID userId,String status) {
+    public List<TaskDTO> getTaskForUserStatusCondition(UUID userId,String status) {
 
-        if (!userRepository.existsById(userId)) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
+        } else {
+            List<Task> tasks = taskRepository.findByUserIdAndDeleted(userId,Boolean.valueOf(status));
+            System.out.println(tasks);
+            if (tasks.isEmpty()) {
+                System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
+            }
+
+            return tasks.stream().map(task -> new TaskDTO(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescrition(),
+                    task.getConlusion(),
+                    task.getDeleted(),
+                    task.getCreatedAt(),
+                    task.getUpdatedAt(),
+                    task.getUser().getId(),
+                    task.getUser().getUsername()
+            )).collect(Collectors.toList());
         }
-
-        List<Task> tasks = taskRepository.findByUserIdAndConlusion(userId, Boolean.valueOf(status));
-
-        if (tasks.isEmpty()) {
-            throw new NotFoundTaskException("Tarefa não encontrada!");
-        }
-
-        return tasks;
     }
 
     @Override
@@ -89,7 +101,7 @@ public class TaskServiceImpl implements TaskServices {
             taskExists.setDescrition(task.getDescrition());
             taskExists.setConlusion(task.getConlusion());
             taskExists.setDeleted(task.getDeleted());
-           
+
 
             // Salva diretamente
             taskRepository.save(taskExists);
