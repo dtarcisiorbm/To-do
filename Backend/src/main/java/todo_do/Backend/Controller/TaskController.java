@@ -14,7 +14,7 @@ import java.util.UUID;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 @RestController
 @RequestMapping("/task")
-@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("USER")
 public class TaskController {
     @Autowired
     private EmailServices emailServices;

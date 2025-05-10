@@ -50,7 +50,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @PrePersist
-    private void gerarDados() {
+    private void generateData() {
         if (id == null) {
             this.id = java.util.UUID.randomUUID();
         }

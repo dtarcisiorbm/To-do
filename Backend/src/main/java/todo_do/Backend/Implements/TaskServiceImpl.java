@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Domain.User.User;
-import todo_do.Backend.Exceptions.NotFoundTaskException;
 import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
 import todo_do.Backend.Services.TaskServices;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +21,8 @@ public class TaskServiceImpl implements TaskServices {
     private TaskRepository taskRepository;
     @Autowired
     private UserRepository userRepository;
+
+
     @Override
     public List<Task> getTask() {
         return taskRepository.findAll();
@@ -45,9 +45,10 @@ public class TaskServiceImpl implements TaskServices {
             return tasks.stream().map(task -> new TaskDTO(
                     task.getId(),
                     task.getTitle(),
-                    task.getDescrition(),
-                    task.getConlusion(),
-                    task.getDeleted(),
+                    task.getDescription(),
+                    task.getPriority(),
+                    task.getCategory(),
+                    task.getDueDate(),
                     task.getCreatedAt(),
                     task.getUpdatedAt(),
                     task.getUser().getId(),
@@ -74,9 +75,10 @@ public class TaskServiceImpl implements TaskServices {
             return tasks.stream().map(task -> new TaskDTO(
                     task.getId(),
                     task.getTitle(),
-                    task.getDescrition(),
-                    task.getConlusion(),
-                    task.getDeleted(),
+                    task.getDescription(),
+                    task.getPriority(),
+                    task.getCategory(),
+                    task.getDueDate(),
                     task.getCreatedAt(),
                     task.getUpdatedAt(),
                     task.getUser().getId(),
@@ -98,9 +100,10 @@ public class TaskServiceImpl implements TaskServices {
 
             // Atualiza os campos necessários diretamente
             taskExists.setTitle(task.getTitle());
-            taskExists.setDescrition(task.getDescrition());
-            taskExists.setConlusion(task.getConlusion());
-            taskExists.setDeleted(task.getDeleted());
+            taskExists.setPriority(task.getPriority());
+            taskExists.setCategory(task.getCategory());
+            taskExists.setDescription(task.getDescription());
+            taskExists.setDueDate(task.getDueDate());
 
 
             // Salva diretamente
@@ -116,8 +119,8 @@ public class TaskServiceImpl implements TaskServices {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task não encontrada"));
 
-        task.setDeleted(true);
-        taskRepository.save(task);
+
+        taskRepository.delete(task);
 
         return ResponseEntity.ok("Task deletada com sucesso!");
     }
