@@ -2,6 +2,7 @@ package todo_do.Backend.Implements;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
@@ -22,6 +23,16 @@ public class TaskServiceImpl implements TaskServices {
     @Autowired
     private UserRepository userRepository;
 
+    private User getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        
+        var userId = UUID.fromString(authentication.getName());
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     @Override
     public List<Task> getTask() {
@@ -30,7 +41,6 @@ public class TaskServiceImpl implements TaskServices {
 
     @Override
     public List<TaskDTO> getTaskForUser(UUID userId) {
-
         Optional<User> userOptional = userRepository.findById(userId);
 
         if (userOptional.isEmpty()) {
@@ -55,40 +65,13 @@ public class TaskServiceImpl implements TaskServices {
                     task.getUser().getUsername()
             )).collect(Collectors.toList());
         }
-
-
-    }
-
-    public List<TaskDTO> getTaskForUserStatusCondition(UUID userId,String status) {
-
-        Optional<User> userOptional = userRepository.findById(userId);
-
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("Usuário com o ID " + userId + " não encontrado no banco de dados.");
-        } else {
-            List<Task> tasks = taskRepository.findByUserIdAndDeleted(userId,Boolean.valueOf(status));
-            System.out.println(tasks);
-            if (tasks.isEmpty()) {
-                System.out.println("Nenhuma tarefa encontrada para o usuário " + userId);
-            }
-
-            return tasks.stream().map(task -> new TaskDTO(
-                    task.getId(),
-                    task.getTitle(),
-                    task.getDescription(),
-                    task.getPriority(),
-                    task.getCategory(),
-                    task.getDueDate(),
-                    task.getCreatedAt(),
-                    task.getUpdatedAt(),
-                    task.getUser().getId(),
-                    task.getUser().getUsername()
-            )).collect(Collectors.toList());
-        }
     }
 
     @Override
     public void insertTask(Task task) {
+        User currentUser = getCurrentUser();
+        System.out.println(task);
+        task.setUser(currentUser);
         taskRepository.save(task);
     }
 
@@ -105,7 +88,6 @@ public class TaskServiceImpl implements TaskServices {
             taskExists.setDescription(task.getDescription());
             taskExists.setDueDate(task.getDueDate());
 
-
             // Salva diretamente
             taskRepository.save(taskExists);
         } else {
@@ -113,19 +95,12 @@ public class TaskServiceImpl implements TaskServices {
         }
     }
 
-
     @Override
     public ResponseEntity<String> deleteTask(UUID id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task não encontrada"));
 
-
-        taskRepository.delete(task);
-
+        taskRepository.deleteById(id);
         return ResponseEntity.ok("Task deletada com sucesso!");
     }
-
-
-
-
 }

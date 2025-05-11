@@ -17,8 +17,8 @@ public class TaskDTO {
     private UUID id;
     private String title;
     private String description;
-    private Priority priority;
-    private Category category;
+    private String priority;
+    private String category;
     private LocalDateTime dueDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

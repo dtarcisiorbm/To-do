@@ -1,5 +1,8 @@
 package todo_do.Backend.Controller;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,21 +11,18 @@ import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Services.EmailServices;
 import todo_do.Backend.Services.TaskServices;
-
-import java.util.List;
-import java.util.UUID;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/task")
-@PreAuthorize("USER")
+@PreAuthorize("hasRole('USER')")
+@SecurityRequirement(name = "Bearer Authentication")
 public class TaskController {
     @Autowired
     private EmailServices emailServices;
 
     @Autowired
     private TaskServices taskServices;
-
-    @PreAuthorize("hasRole('USER')")
 
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
@@ -36,15 +36,11 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/{userId}/{status}")
-    public ResponseEntity<List<TaskDTO>> getTaskForUserStatusCondition(@PathVariable UUID userId,@PathVariable String status) {
-        var tasks = taskServices.getTaskForUserStatusCondition(userId,status);
-        return ResponseEntity.ok(tasks);
-    }
 
     @PostMapping
     public ResponseEntity<String> insertTask(@RequestBody Task taskDetails) {
         try {
+            System.out.println("Task details: " + taskDetails);
             taskServices.insertTask(taskDetails);
             emailServices.sendEmail( "haospa.dark@gmail.com","Bem-vindo ao nosso serviço!", " Task Criada!");
             return ResponseEntity.ok("Task created!");

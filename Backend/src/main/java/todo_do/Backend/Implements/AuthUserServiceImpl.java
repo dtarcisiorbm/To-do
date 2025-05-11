@@ -45,6 +45,11 @@ public class AuthUserServiceImpl implements AuthUserService {
             throw new AuthenticationException("Senha inválida");
         }
 
+        if (user.getRole() == null) {
+            user.setRole(role.USER);
+            userRepository.save(user);
+        }
+
         return generateToken(user);
     }
 

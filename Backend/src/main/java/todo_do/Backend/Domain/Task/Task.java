@@ -28,13 +28,13 @@ public class Task {
 
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority")
-    private Priority priority;
 
-    @Enumerated(EnumType.STRING)
+    @Column(name = "priority")
+    private String priority;
+
+
     @Column(name = "category")
-    private Category category;
+    private String category;
 
     private LocalDateTime dueDate;
 
