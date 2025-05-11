@@ -30,11 +30,19 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/{userId}")
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<TaskDTO>> getTasksId(@PathVariable UUID id) {
+        var tasks = taskServices.getTaskId(id);
+        return ResponseEntity.ok(tasks);
+    }@GetMapping("/user/{userId}")
     public ResponseEntity<List<TaskDTO>> getTasksForUser(@PathVariable UUID userId) {
         var tasks = taskServices.getTaskForUser(userId);
         return ResponseEntity.ok(tasks);
     }
+
+
 
 
     @PostMapping

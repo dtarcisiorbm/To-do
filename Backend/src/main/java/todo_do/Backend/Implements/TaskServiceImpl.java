@@ -58,6 +58,36 @@ public class TaskServiceImpl implements TaskServices {
                     task.getDescription(),
                     task.getPriority(),
                     task.getCategory(),
+                    task.getCompleted(),
+                    task.getDueDate(),
+                    task.getCreatedAt(),
+                    task.getUpdatedAt(),
+                    task.getUser().getId(),
+                    task.getUser().getUsername()
+            )).collect(Collectors.toList());
+        }
+    }
+    @Override
+    public List<TaskDTO> getTaskId(UUID id) {
+
+        Optional<Task> taskOptional = taskRepository.findById(id);
+
+        if (taskOptional.isEmpty()) {
+            throw new RuntimeException("Usuário com o ID " + id + " não encontrado no banco de dados.");
+        } else {
+            Optional<Task> tasks = taskRepository.findById(id);
+
+            if (tasks.isEmpty()) {
+                System.out.println("Nenhuma tarefa encontrada para o usuário " + id);
+            }
+
+            return tasks.stream().map(task -> new TaskDTO(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getPriority(),
+                    task.getCategory(),
+                    task.getCompleted(),
                     task.getDueDate(),
                     task.getCreatedAt(),
                     task.getUpdatedAt(),
@@ -70,8 +100,8 @@ public class TaskServiceImpl implements TaskServices {
     @Override
     public void insertTask(Task task) {
         User currentUser = getCurrentUser();
-        System.out.println(task);
         task.setUser(currentUser);
+        task.setCompleted(false);
         taskRepository.save(task);
     }
 
@@ -81,14 +111,15 @@ public class TaskServiceImpl implements TaskServices {
         if (taskExist.isPresent()) {
             Task taskExists = taskExist.get();
 
-            // Atualiza os campos necessários diretamente
+
             taskExists.setTitle(task.getTitle());
             taskExists.setPriority(task.getPriority());
             taskExists.setCategory(task.getCategory());
             taskExists.setDescription(task.getDescription());
             taskExists.setDueDate(task.getDueDate());
+            taskExists.setCompleted(task.getCompleted());
 
-            // Salva diretamente
+
             taskRepository.save(taskExists);
         } else {
             throw new Exception("Task not found");

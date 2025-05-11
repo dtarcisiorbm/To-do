@@ -36,6 +36,9 @@ public class Task {
     @Column(name = "category")
     private String category;
 
+    @Column(name = "completed")
+    private Boolean completed =false;
+
     private LocalDateTime dueDate;
 
     @ManyToOne
@@ -55,6 +58,10 @@ public class Task {
         if (id == null) {
             this.id = java.util.UUID.randomUUID();
         }
+    }
+
+    public boolean getCompleted() {
+        return completed;
     }
 }
 

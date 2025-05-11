@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface TaskServices {
     List<Task> getTask();
     List<TaskDTO> getTaskForUser(UUID userId);
-
+    List<TaskDTO> getTaskId(UUID id);
     void insertTask(Task task);
     void updateTask(UUID id, Task task) throws Exception;
     ResponseEntity<String> deleteTask(UUID id);
