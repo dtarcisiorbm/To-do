@@ -61,18 +61,22 @@ public class LlamaService {
         }
     }
     public String checkAvailability(String date, List<String> horariosOcupados) {
+
         try {
+
             if (date == null || date.isEmpty()) {
-                System.out.println("Data vazia ou nula");
+                System.out.println("Data vazia ou nula"+date);
                 return null;
             }
 
-            // Constrói uma descrição mais natural
             String horarios = String.join(", ", horariosOcupados);
             String result = String.format("""
-Você é um assistente de agenda. Dado que os horários ocupados no dia %s são: %s,
-responda apenas com os horários disponíveis desse dia (sem explicações, só os intervalos livres em formato HH:mm - HH:mm).
-""", date, String.join(", ", horarios));
+Você é um assistente de agendamento.
+No dia %s, já existem compromissos nos seguintes horários: [%s].
+
+Liste apenas os horários ocupados deste dia no formato "HH:mm - HH:mm", como um array de strings JSON.
+Não adicione explicações, apenas retorne a lista de horários ocupados.
+""", date, horarios);
 
             ObjectMapper mapper = new ObjectMapper();
             String escapedPrompt = mapper.writeValueAsString(result);

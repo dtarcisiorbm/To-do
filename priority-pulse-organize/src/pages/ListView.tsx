@@ -73,11 +73,7 @@ const ListView = () => {
     console.log("Toggling complete for task:", task.id, "to:", completed);
     try {
       await taskService.updateTask(task.id, { ...task, completed });
-      setTasks(
-        tasks.map((task) =>
-          task.id === task.id ? { ...task, completed } : task
-        )
-      );
+      setTasks(tasks.map((t) => (t.id === task.id ? { ...t, completed } : t)));
 
       toast({
         title: completed ? "Tarefa concluída" : "Tarefa reaberta",

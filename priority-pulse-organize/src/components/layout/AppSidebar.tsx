@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Calendar, List, PlusCircle } from 'lucide-react';
+import React from "react";
+import { Calendar, List, PlusCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,12 +11,14 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
-  SidebarFooter
-} from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
-import { useNavigate, useLocation } from 'react-router-dom';
+  SidebarFooter,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AppSidebar = () => {
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,6 +31,12 @@ const AppSidebar = () => {
           <h1 className="text-xl font-bold text-primary">Priority Pulse</h1>
           <SidebarTrigger />
         </div>
+        {user && (
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p className="font-semibold text-foreground">{user.username}</p>
+            <p>{user.email}</p>
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -37,18 +44,18 @@ const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton 
-                  className={isActive('/') ? 'bg-accent' : ''}
-                  onClick={() => navigate('/')}
+                <SidebarMenuButton
+                  className={isActive("/") ? "bg-accent" : ""}
+                  onClick={() => navigate("/")}
                 >
                   <List className="mr-2 h-4 w-4" />
                   <span>List View</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton 
-                  className={isActive('/calendar') ? 'bg-accent' : ''}
-                  onClick={() => navigate('/calendar')}
+                <SidebarMenuButton
+                  className={isActive("/calendar") ? "bg-accent" : ""}
+                  onClick={() => navigate("/calendar")}
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   <span>Calendar View</span>
@@ -57,7 +64,7 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
         <SidebarGroup>
           <SidebarGroupLabel>Categories</SidebarGroupLabel>
           <SidebarGroupContent className="px-4 py-2">
@@ -82,11 +89,10 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarFooter className="p-4">
-        <Button className="w-full" onClick={() => navigate('/new-task')}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Task
+        <Button variant="outline" className="w-full" onClick={logout}>
+          Sign Out
         </Button>
       </SidebarFooter>
     </Sidebar>

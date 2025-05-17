@@ -38,6 +38,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"; // Import Tooltip components
+import { Task } from "@/types/task"; // Importar o tipo Task
 
 // Define the form schema
 const formSchema = z.object({
@@ -59,6 +60,7 @@ interface TaskFormProps {
   defaultValues?: Partial<z.infer<typeof formSchema>>;
   isEditing?: boolean;
   isGenerating?: boolean; // Add isGenerating prop
+  tasks?: Task[]; // Add tasks prop
 }
 
 const TaskForm = ({
@@ -67,7 +69,8 @@ const TaskForm = ({
   onGenerateDescription,
   defaultValues,
   isEditing = false,
-  isGenerating = false, // Default to false
+  isGenerating = false,
+  tasks = [], // Default to empty array
 }: TaskFormProps) => {
   React.useEffect(() => {
     if (defaultValues) {
@@ -244,24 +247,43 @@ const TaskForm = ({
           name="dueDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Data e Hora de Vencimento (Opcional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  value={
-                    field.value instanceof Date
-                      ? field.value.toISOString().slice(0, 16)
-                      : field.value || ""
-                  }
-                  onChange={(e) => {
-                    const date = new Date(e.target.value);
-                    field.onChange(isNaN(date.getTime()) ? "" : date);
-                  }}
-                />
-              </FormControl>
+              <FormLabel>Data de Vencimento (Opcional)</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value as Date, "PPP")
+                      ) : (
+                        <span>Selecione uma data</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value as Date}
+                    onSelect={field.onChange}
+                    initialFocus
+                    onAvailabilityChange={(times, loading) => {
+                      // Handle availability change if needed in TaskForm
+                      console.log("Available times:", times);
+                      console.log("Loading:", loading);
+                    }}
+                    tasks={tasks} // Pass the tasks prop
+                  />
+                </PopoverContent>
+              </Popover>
               <FormDescription>
-                Selecione a data e hora de vencimento para sua tarefa (opcional)
+                Selecione a data de vencimento para sua tarefa (opcional)
               </FormDescription>
               <FormMessage />
             </FormItem>

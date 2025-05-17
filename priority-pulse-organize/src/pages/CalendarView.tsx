@@ -31,9 +31,9 @@ const CalendarView = () => {
         if (user?.id) {
           const tasksData = await taskService.getTasks(user.id);
           // Garantir que as datas das tarefas sejam convertidas corretamente
-          const tasksWithFormattedDates = tasksData.map(task => ({
+          const tasksWithFormattedDates = tasksData.map((task) => ({
             ...task,
-            dueDate: task.dueDate ? new Date(task.dueDate) : null
+            dueDate: task.dueDate ? new Date(task.dueDate) : null,
           }));
           setTasks(tasksWithFormattedDates);
         }
@@ -127,6 +127,7 @@ const CalendarView = () => {
               selected={selectedDate}
               onSelect={handleDateSelect}
               className="w-full"
+              tasks={tasks} // Passar a lista de tarefas para o componente Calendar
               components={{
                 // @ts-ignore - We're adding a custom renderer for the days
                 DayContent: (props) => (
@@ -141,7 +142,7 @@ const CalendarView = () => {
         )}
       </div>
 
-      <Dialog open={isTasksDialogOpen} onOpenChange={setIsTasksDialogOpen}>
+      {/* <Dialog open={isTasksDialogOpen} onOpenChange={setIsTasksDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -201,7 +202,7 @@ const CalendarView = () => {
             )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

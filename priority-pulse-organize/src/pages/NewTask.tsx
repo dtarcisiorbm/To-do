@@ -9,7 +9,8 @@ import { taskService, llamaService } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TaskForm from "@/components/tasks/TaskForm";
-import { useState } from "react";
+import { Task } from "@/types/task"; // Importar o tipo Task
+import { useState, useEffect } from "react"; // Importar useEffect
 
 export const formSchema = z.object({
   title: z.string().min(1, { message: "Título é obrigatório" }),
@@ -28,6 +29,7 @@ const NewTask = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]); // Adicionar estado para tarefas
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,6 +41,20 @@ const NewTask = () => {
       dueDate: new Date(),
     },
   });
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const allTasks = await taskService.getTasks();
+        setTasks(allTasks);
+      } catch (error) {
+        console.error("Erro ao buscar tarefas:", error);
+        // Opcional: exibir um toast de erro
+      }
+    };
+
+    fetchTasks();
+  }, []); // Executar apenas uma vez ao montar o componente
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
@@ -119,6 +135,7 @@ const NewTask = () => {
           onSubmit={handleSubmit}
           onGenerateDescription={handleGenerateDescription}
           isGenerating={isGenerating}
+          tasks={tasks} // Passar a lista de tarefas
         />
       </div>
     </div>

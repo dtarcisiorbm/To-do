@@ -80,6 +80,16 @@ export const llamaService = {
     const response = await api.post("/api/llama", { prompt });
     return response.data;
   },
+  async checkAvailability(
+    date: string,
+    horariosOcupados: string[]
+  ): Promise<{ response: string }> {
+    const response = await api.post("/api/llama/check-availability", {
+      date,
+      horariosOcupados,
+    });
+    return response.data;
+  },
 };
 
 export default api;
