@@ -3,7 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import TaskForm from "@/components/tasks/TaskForm";
 import { Task } from "@/types/task";
-import { taskService } from "@/services/api";
+import { llamaService, taskService } from "@/services/api";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./NewTask";
+import { z } from "zod";
 
 const EditTask = () => {
   const navigate = useNavigate();
@@ -12,7 +16,51 @@ const EditTask = () => {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "",
+      priority: "medium",
+      dueDate: new Date(),
+    },
+  });
+  const handleGenerateDescription = async () => {
+    const title = form.getValues("title");
+    if (!title) {
+      toast({
+        title: "Atenção",
+        description: "Por favor, insira um título para gerar a descrição.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const result = await llamaService.generateDescription(title);
+      if (result?.response) {
+        form.setValue("description", result.response);
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível gerar a descrição. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description:
+          "Não foi possível gerar a descrição. Verifique a conexão com o serviço Llama.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   useEffect(() => {
     const fetchTask = async () => {
       try {
@@ -100,6 +148,7 @@ const EditTask = () => {
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <TaskForm
+          form={form}
           onSubmit={handleSubmit}
           defaultValues={{
             title: task.title,
@@ -108,7 +157,8 @@ const EditTask = () => {
             priority: task.priority,
             dueDate: task.dueDate,
           }}
-          isEditing
+          isGenerating={isGenerating}
+          onGenerateDescription={handleGenerateDescription}
         />
       </div>
     </div>

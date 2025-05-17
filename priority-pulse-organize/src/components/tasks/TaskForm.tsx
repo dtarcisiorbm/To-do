@@ -49,7 +49,7 @@ const formSchema = z.object({
   priority: z.string({
     required_error: "Por favor, selecione uma prioridade",
   }),
-  dueDate: z.date().optional(),
+  dueDate: z.union([z.date(), z.string()]).optional(),
 });
 
 interface TaskFormProps {
@@ -244,38 +244,24 @@ const TaskForm = ({
           name="dueDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Data de Vencimento (Opcional)</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Escolha uma data</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value || undefined}
-                    onSelect={field.onChange}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormLabel>Data e Hora de Vencimento (Opcional)</FormLabel>
+              <FormControl>
+                <Input
+                  type="datetime-local"
+                  {...field}
+                  value={
+                    field.value instanceof Date
+                      ? field.value.toISOString().slice(0, 16)
+                      : field.value || ""
+                  }
+                  onChange={(e) => {
+                    const date = new Date(e.target.value);
+                    field.onChange(isNaN(date.getTime()) ? "" : date);
+                  }}
+                />
+              </FormControl>
               <FormDescription>
-                Selecione uma data de vencimento para sua tarefa (opcional)
+                Selecione a data e hora de vencimento para sua tarefa (opcional)
               </FormDescription>
               <FormMessage />
             </FormItem>

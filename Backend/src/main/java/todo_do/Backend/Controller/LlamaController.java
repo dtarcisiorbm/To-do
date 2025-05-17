@@ -10,6 +10,9 @@ import todo_do.Backend.DTO.LlamaRequestDTO;
 import todo_do.Backend.DTO.LlamaResponseDTO;
 import todo_do.Backend.Services.LlamaService;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/llama")
 @PreAuthorize("hasRole('USER')")
@@ -20,6 +23,18 @@ public class LlamaController {
 
     @PostMapping
     public LlamaResponseDTO generateAnswer(@RequestBody LlamaRequestDTO request) {
-        return llamaService.generateAnswer(request.getPrompt());
+        return llamaService.generateDescription(request.getPrompt());
+    }
+    @PostMapping("/check-availability")
+    public String checkAvailability(@RequestBody Map<String, Object> payload) {
+        try {
+            String date = (String) payload.get("date");
+            List<String> horarios = (List<String>) payload.get("horariosOcupados");
+
+            return llamaService.checkAvailability(date, horarios);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao processar solicitação";
+        }
     }
 }

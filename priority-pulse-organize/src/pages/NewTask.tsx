@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import TaskForm from "@/components/tasks/TaskForm";
 import { useState } from "react";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   title: z.string().min(1, { message: "Título é obrigatório" }),
   description: z.string().optional(),
   category: z.string({
