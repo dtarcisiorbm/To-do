@@ -122,7 +122,7 @@ const TaskCard = ({
           {task.dueDate && (
             <div className="flex items-center text-xs text-muted-foreground">
               <CalendarIcon className="h-3 w-3 mr-1" />
-              <span>Due {format(task.dueDate, "MMM d, yyyy")}</span>
+              <span>Due {format(task.dueDate, "dd/mm/yyyy HH:mm")}</span>
             </div>
           )}
         </div>
