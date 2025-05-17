@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,13 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react"; // Import Loader2 icon
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Import Tooltip components
 
 // Define the form schema
 const formSchema = z.object({
@@ -46,29 +53,22 @@ const formSchema = z.object({
 });
 
 interface TaskFormProps {
+  form: ReturnType<typeof useForm<z.infer<typeof formSchema>>>;
   onSubmit: (data: z.infer<typeof formSchema>) => void;
+  onGenerateDescription?: () => void;
   defaultValues?: Partial<z.infer<typeof formSchema>>;
   isEditing?: boolean;
+  isGenerating?: boolean; // Add isGenerating prop
 }
 
 const TaskForm = ({
+  form,
   onSubmit,
+  onGenerateDescription,
   defaultValues,
   isEditing = false,
+  isGenerating = false, // Default to false
 }: TaskFormProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: defaultValues?.title || "",
-      description: defaultValues?.description || "",
-      category: defaultValues?.category || "",
-      priority: defaultValues?.priority || "medium",
-      dueDate: defaultValues?.dueDate
-        ? new Date(defaultValues.dueDate)
-        : undefined,
-    },
-  });
-
   React.useEffect(() => {
     if (defaultValues) {
       Object.keys(defaultValues).forEach((key) => {
@@ -110,13 +110,40 @@ const TaskForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Descrição</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Digite a descrição da tarefa (opcional)"
-                  className="min-h-[120px]"
-                  {...field}
-                />
-              </FormControl>
+              {/* Container for textarea and button */}
+              <div className="relative">
+                <FormControl>
+                  <Textarea
+                    placeholder="Digite a descrição da tarefa (opcional)"
+                    className="min-h-[120px] pr-24" // Add padding to the right
+                    {...field}
+                  />
+                </FormControl>
+                {onGenerateDescription && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={onGenerateDescription}
+                          className="absolute top-2 right-2"
+                          disabled={isGenerating}
+                        >
+                          {isGenerating ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Gerar Descrição IA</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}

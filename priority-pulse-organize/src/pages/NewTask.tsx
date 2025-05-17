@@ -1,17 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
-import TaskForm from "@/components/tasks/TaskForm";
-import { taskService } from "@/services/api";
+import { taskService, llamaService } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import TaskForm from "@/components/tasks/TaskForm";
+import { useState } from "react";
+
+const formSchema = z.object({
+  title: z.string().min(1, { message: "Título é obrigatório" }),
+  description: z.string().optional(),
+  category: z.string({
+    required_error: "Por favor, selecione uma categoria",
+  }),
+  priority: z.string({
+    required_error: "Por favor, selecione uma prioridade",
+  }),
+  dueDate: z.date().optional(),
+});
 
 const NewTask = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleSubmit = async (data: any) => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "",
+      priority: "medium",
+      dueDate: new Date(),
+    },
+  });
+
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (!user?.id) {
         throw new Error("Usuário não autenticado");
@@ -19,7 +48,6 @@ const NewTask = () => {
       console.log(user?.id);
       const taskData = {
         ...data,
-
         user: {
           id: user?.id,
         },
@@ -42,6 +70,40 @@ const NewTask = () => {
     }
   };
 
+  const handleGenerateDescription = async () => {
+    const title = form.getValues("title");
+    if (!title) {
+      toast({
+        title: "Atenção",
+        description: "Por favor, insira um título para gerar a descrição.",
+        variant: "warning",
+      });
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const result = await llamaService.generateDescription(title);
+      if (result?.response) {
+        form.setValue("description", result.response);
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível gerar a descrição. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description:
+          "Não foi possível gerar a descrição. Verifique a conexão com o serviço Llama.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-6 px-6">
       <div className="flex flex-col mb-6">
@@ -52,7 +114,12 @@ const NewTask = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <TaskForm onSubmit={handleSubmit} />
+        <TaskForm
+          form={form}
+          onSubmit={handleSubmit}
+          onGenerateDescription={handleGenerateDescription}
+          isGenerating={isGenerating}
+        />
       </div>
     </div>
   );

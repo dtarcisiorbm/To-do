@@ -75,4 +75,11 @@ export const taskService = {
   },
 };
 
+export const llamaService = {
+  async generateDescription(prompt: string): Promise<{ response: string }> {
+    const response = await api.post("/api/llama", { prompt });
+    return response.data;
+  },
+};
+
 export default api;
