@@ -12,7 +12,7 @@ A IA é utilizada para:
 
 | Camada       | Ferramenta                     |
 |--------------|---------------------------------|
-| Backend      | Java + Spring Boot              |
+| Backend      | Java + Spring Boot+React        |
 | IA           | LLaMA 3 via Ollama              |
 | Frontend     | React (pode ser adaptado)       |
 | Autenticação | JWT / OAuth2                    |
