@@ -20,26 +20,19 @@ public class LlamaService {
                 System.out.println("Prompt vazio ou nulo");
                 return null;
             }
-            String result = String.format("Give a short description of %s (maximum 150 characters).", prompt);
+            String result = String.format("Faça um resumo de uma tarefa : %s (maximum 150 characters).", prompt);
 
             // Serializa o prompt com aspas corretamente
             ObjectMapper mapper = new ObjectMapper();
             String escapedPrompt = mapper.writeValueAsString(result); // inclui aspas corretamente
 
-            String requestBody = """
-                {
-                  "model": "llama3:8b",
-                  "prompt": %s,
-                  "stream": false,
-                  "max_tokens": 20
-                }
-                """.formatted(escapedPrompt);
+
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:11434/api/generate"))
+                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/description"))
                     .header("Content-Type", "application/json")
                     .timeout(Duration.ofSeconds(100))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .POST(HttpRequest.BodyPublishers.ofString(escapedPrompt))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
@@ -71,30 +64,24 @@ public class LlamaService {
 
             String horarios = String.join(", ", horariosOcupados);
             String result = String.format("""
-Você é um assistente de agendamento.
-No dia %s, já existem compromissos nos seguintes horários: [%s].
-
-Liste apenas os horários ocupados deste dia no formato "HH:mm - HH:mm", como um array de strings JSON.
-Não adicione explicações, apenas retorne a lista de horários ocupados.
-""", date, horarios);
+                Você é um assistente de agendamento.
+                No dia %s, já existem compromissos nos seguintes horários: [%s].
+                
+                Liste apenas os horários ocupados deste dia no formato "HH:mm - HH:mm", como um array de strings JSON.
+                Não adicione explicações, apenas retorne a lista de horários ocupados.
+                """, date, horarios);
 
             ObjectMapper mapper = new ObjectMapper();
             String escapedPrompt = mapper.writeValueAsString(result);
 
             String requestBody = """
-            {
-              "model": "llama3:8b",
-              "prompt": %s,
-              "stream": false,
-              "max_tokens": 50
-            }
+         
             """.formatted(escapedPrompt);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:11434/api/generate"))
+                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook-test/hour"))
                     .header("Content-Type", "application/json")
                     .timeout(Duration.ofSeconds(100))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
