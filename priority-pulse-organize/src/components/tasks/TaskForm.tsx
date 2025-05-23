@@ -70,25 +70,25 @@ const TaskForm = ({
 	defaultValues,
 	isEditing = false,
 	isGenerating = false,
-	tasks = [], // Default to empty array
+	tasks = [],
 }: TaskFormProps) => {
+	// Só popula os campos uma vez, no mount
 	React.useEffect(() => {
 		if (defaultValues) {
-			Object.keys(defaultValues).forEach((key) => {
-				const value = defaultValues[key as keyof typeof defaultValues];
+			Object.entries(defaultValues).forEach(([key, value]) => {
 				if (value !== undefined) {
-					if (key === "category") {
-						form.setValue("category", value as string);
-					} else {
-						form.setValue(
-							key as keyof typeof formSchema,
-							key === "dueDate" && value ? new Date(value) : value,
-						);
-					}
+					form.setValue(
+						key as keyof typeof defaultValues,
+						key === "dueDate" && value
+							? new Date(value as string | Date)
+							: value,
+						{ shouldDirty: false },
+					);
 				}
 			});
 		}
-	}, [defaultValues, form]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Só roda no mount
 
 	const handleSubmit = (data: z.infer<typeof formSchema>) => {
 		if (data.title && (!data.description || data.description.trim() === "")) {
