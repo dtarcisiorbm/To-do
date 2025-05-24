@@ -11,6 +11,8 @@ import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
 import todo_do.Backend.Services.TaskServices;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -95,6 +97,19 @@ public class TaskServiceImpl implements TaskServices {
                     task.getUser().getUsername()
             )).collect(Collectors.toList());
         }
+    }
+
+
+
+    @Override
+    public List<TaskDTO> getTasksByDate(LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59, 999999999);
+        List<TaskDTO> tasks = taskRepository.findTaskDTOsByDueDateBetween(startOfDay, endOfDay);
+        if (tasks.isEmpty()) {
+            throw new RuntimeException("Nenhuma tarefa encontrada para a data fornecida.");
+        }
+        return tasks;
     }
 
     @Override

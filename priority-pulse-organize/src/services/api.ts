@@ -60,6 +60,10 @@ export const taskService = {
     const response = await api.get(`/task/${id}`);
     return response.data;
   },
+    async getTaskDate(date: Date): Promise<Task[]> {
+    const response = await api.get(`/task/date/${date}`);
+    return response.data;
+  },
 
   async createTask(task: Omit<Task, "id" | "createdAt">): Promise<Task> {
     const response = await api.post("/task", task);
@@ -82,7 +86,7 @@ export const llamaService = {
   },
   async checkAvailability(
     date: string,
-    horariosOcupados: string[]
+    horariosOcupados: Task[]
   ): Promise<{ response: string }> {
     const response = await api.post("/api/llama/check-availability", {
       date,

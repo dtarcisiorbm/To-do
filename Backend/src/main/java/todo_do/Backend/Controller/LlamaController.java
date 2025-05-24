@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import todo_do.Backend.DTO.LlamaRequestDTO;
 import todo_do.Backend.DTO.LlamaResponseDTO;
+import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Services.LlamaService;
 
 import java.util.List;
@@ -26,11 +27,11 @@ public class LlamaController {
         return llamaService.generateDescription(request.getPrompt());
     }
     @PostMapping("/check-availability")
-    public String checkAvailability(@RequestBody Map<String, Object> payload) {
+public String checkAvailability(@RequestBody Map<String, Object> payload) {
+        System.out.println("Payload recebido: " + payload);
         try {
             String date = (String) payload.get("date");
-            List<String> horarios = (List<String>) payload.get("horariosOcupados");
-
+            List<Task> horarios = (List<Task>) payload.get("horariosOcupados");
             return llamaService.checkAvailability(date, horarios);
         } catch (Exception e) {
             e.printStackTrace();

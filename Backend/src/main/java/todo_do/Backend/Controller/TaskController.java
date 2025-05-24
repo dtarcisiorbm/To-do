@@ -1,5 +1,9 @@
 package todo_do.Backend.Controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +46,14 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+
+
+    @GetMapping("/date/{date}")
+    public ResponseEntity<List<TaskDTO>> getTasksForDate(@PathVariable Date date) {
+        LocalDate localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        var tasks = taskServices.getTasksByDate(localDateTime);
+        return ResponseEntity.ok(tasks);
+    }
 
 
 

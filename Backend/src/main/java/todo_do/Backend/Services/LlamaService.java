@@ -3,12 +3,14 @@ package todo_do.Backend.Services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import todo_do.Backend.DTO.LlamaResponseDTO;
+import todo_do.Backend.Domain.Task.Task;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -38,7 +40,7 @@ public class LlamaService {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("Response: " + response.body());
+
 
             if (response.statusCode() == 200) {
                 LlamaResponseDTO dto = mapper.readValue(response.body(), LlamaResponseDTO.class);
@@ -53,7 +55,7 @@ public class LlamaService {
             return null;
         }
     }
-    public String checkAvailability(String date, List<String> horariosOcupados) {
+    public String checkAvailability(String date, List<Task> horariosOcupados) {
 
         try {
 
@@ -62,14 +64,14 @@ public class LlamaService {
                 return null;
             }
 
-            String horarios = String.join(", ", horariosOcupados);
+
             String result = String.format("""
                 Você é um assistente de agendamento.
                 No dia %s, já existem compromissos nos seguintes horários: [%s].
                 
                 Liste apenas os horários ocupados deste dia no formato "HH:mm - HH:mm", como um array de strings JSON.
                 Não adicione explicações, apenas retorne a lista de horários ocupados.
-                """, date, horarios);
+                """, date, horariosOcupados);
 
             ObjectMapper mapper = new ObjectMapper();
             String escapedPrompt = mapper.writeValueAsString(result);
@@ -79,15 +81,16 @@ public class LlamaService {
             """.formatted(escapedPrompt);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook-test/hour"))
+                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/date"))
                     .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(escapedPrompt))
                     .timeout(Duration.ofSeconds(100))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("Response: " + response.body());
+
 
             if (response.statusCode() == 200) {
                 LlamaResponseDTO dto = mapper.readValue(response.body(), LlamaResponseDTO.class);
