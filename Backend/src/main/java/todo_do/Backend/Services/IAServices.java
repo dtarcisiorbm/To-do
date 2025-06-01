@@ -2,7 +2,8 @@ package todo_do.Backend.Services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import todo_do.Backend.DTO.LlamaResponseDTO;
+import todo_do.Backend.DTO.IAResponseDTO;
+import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
 
 import java.net.URI;
@@ -10,13 +11,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
-public class LlamaService {
+public class IAServices {
 
-    public LlamaResponseDTO generateDescription(String prompt) {
+    public IAResponseDTO generateDescription(String prompt) {
         try {
             if(prompt == null || prompt.isEmpty()) {
                 System.out.println("Prompt vazio ou nulo");
@@ -43,7 +44,7 @@ public class LlamaService {
 
 
             if (response.statusCode() == 200) {
-                LlamaResponseDTO dto = mapper.readValue(response.body(), LlamaResponseDTO.class);
+                IAResponseDTO dto = mapper.readValue(response.body(), IAResponseDTO.class);
                 return dto; // ✅ retorna apenas o texto
             } else {
                 System.out.println("Erro HTTP: " + response.statusCode() + " - " + response.body());
@@ -79,7 +80,6 @@ public class LlamaService {
             String requestBody = """
          
             """.formatted(escapedPrompt);
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/date"))
                     .header("Content-Type", "application/json")
@@ -90,11 +90,42 @@ public class LlamaService {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            if (response.statusCode() == 200) {
+                IAResponseDTO dto = mapper.readValue(response.body(), IAResponseDTO.class);
+                return dto.getResponse();
+            } else {
+                System.out.println("Error HTTP: " + response.statusCode() + " - " + response.body());
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+  public IAResponseDTO sendEmail(UUID taskId) {
+        try {
+            if (taskId == null) {
+                System.out.println("taskId vazio ou nulo");
+                return null;
+            }
 
+            ObjectMapper mapper = new ObjectMapper();
+            // Cria um objeto JSON com o campo "taskId"
+            String requestBody = "{\"taskId\":\"" + taskId + "\"}";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook-test/email"))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(100))
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                LlamaResponseDTO dto = mapper.readValue(response.body(), LlamaResponseDTO.class);
-                return dto.getResponse(); // Retorna só o texto
+                IAResponseDTO dto = mapper.readValue(response.body(), IAResponseDTO.class);
+                return dto; // ✅ retorna apenas o texto
             } else {
                 System.out.println("Erro HTTP: " + response.statusCode() + " - " + response.body());
                 return null;

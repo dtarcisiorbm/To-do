@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LlamaResponseDTO {
+public class IAResponseDTO {
 
     private String model;
 
@@ -19,7 +19,7 @@ public class LlamaResponseDTO {
     private String doneReason;
 
     // Construtor vazio obrigatório
-    public LlamaResponseDTO() {
+    public IAResponseDTO() {
     }
 
     // Getters e setters

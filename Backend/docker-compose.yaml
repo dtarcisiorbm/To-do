@@ -1,10 +1,10 @@
 services:
   postgres:
     container_name: to-do-list
-    image: postgres
+    image: postgres:17
     ports:
-      - "5432:5432"
+      - "5430:5430"
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=to-do
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_DB=todo_list_db

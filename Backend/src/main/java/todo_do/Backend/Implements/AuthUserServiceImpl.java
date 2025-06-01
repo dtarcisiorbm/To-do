@@ -93,7 +93,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .expires_in(expiresIn.toEpochMilli())
-                .user(new UserDTO(user.getId(),user.getUsername(),user.getEmail(),user.getRole()))
+                .user(new UserDTO(user.getId(),user.getUsername(),user.getEmail(),user.getRole() ,user.getPhone()))
                 .build();
     }
 

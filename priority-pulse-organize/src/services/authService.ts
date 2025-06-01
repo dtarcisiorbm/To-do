@@ -14,6 +14,7 @@ export interface UserDTO {
   username: string;
   email: string;
   role: string;
+  phone?: string; // Campo opcional pois usuários existentes podem não ter
 }
 
 export interface AuthResponse {

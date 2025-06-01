@@ -15,7 +15,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Getter
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,7 +33,9 @@ public class User {
     @Email(message = "O campo email deve conter um e-mail válido")
     String email;
 
-    @Length(min = 10, max = 100)
+    @Length(min = 10, max = 100)@Pattern(regexp = "\\d{10,15}", message = "O campo [phone] deve conter apenas números e ter entre 10 e 15 dígitos")
+    String phone;
+
     String password;
 
     @Enumerated(EnumType.STRING)

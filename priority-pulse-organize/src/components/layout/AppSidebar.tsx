@@ -1,5 +1,6 @@
-import React from "react";
-import { Calendar, List, PlusCircle } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, List, UserCog } from "lucide-react";
+import { EditUserDialog } from "@/components/user/EditUserDialog";
 import {
   Sidebar,
   SidebarContent,
@@ -18,11 +19,20 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AppSidebar = () => {
-  const { logout, user } = useAuth();
+  const { logout, user, updateUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleUpdateUser = async (data: { name: string; email: string; phone: string }) => {
+    if (!user) return;
+    await updateUser({
+      ...data,
+      username: data.name,
+    });
+  };
 
   return (
     <Sidebar>
@@ -33,11 +43,25 @@ const AppSidebar = () => {
         </div>
         {user && (
           <div className="mt-4 text-sm text-muted-foreground">
-            <p className="font-semibold text-foreground">{user.username}</p>
-            <p>{user.email}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-foreground">{user.username}</p>
+                <p>{user.email}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-accent"
+                onClick={() => setIsEditUserOpen(true)}
+                title="Editar perfil"
+              >
+                <UserCog className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Views</SidebarGroupLabel>
@@ -95,6 +119,17 @@ const AppSidebar = () => {
           Sign Out
         </Button>
       </SidebarFooter>
+
+      <EditUserDialog
+        open={isEditUserOpen}
+        onOpenChange={setIsEditUserOpen}
+        defaultValues={{
+          name: user?.username || "",
+          email: user?.email || "",
+          phone: user?.phone || "",
+        }}
+        onSubmit={handleUpdateUser}
+      />
     </Sidebar>
   );
 };

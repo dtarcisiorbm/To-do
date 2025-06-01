@@ -1,7 +1,6 @@
 package todo_do.Backend.Controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import todo_do.Backend.DTO.TaskDTO;
 import todo_do.Backend.Domain.Task.Task;
-import todo_do.Backend.Services.EmailServices;
 import todo_do.Backend.Services.TaskServices;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
@@ -22,8 +20,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 @PreAuthorize("hasRole('USER')")
 @SecurityRequirement(name = "Bearer Authentication")
 public class TaskController {
-    @Autowired
-    private EmailServices emailServices;
+
 
     @Autowired
     private TaskServices taskServices;
@@ -62,7 +59,6 @@ public class TaskController {
         try {
             System.out.println("Task details: " + taskDetails);
             taskServices.insertTask(taskDetails);
-            emailServices.sendEmail( "haospa.dark@gmail.com","Bem-vindo ao nosso serviço!", " Task Criada!");
             return ResponseEntity.ok("Task created!");
         } catch (Exception e) {
             throw new RuntimeException("Error creating task: " + e.getMessage());

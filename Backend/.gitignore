@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 /src/main/resources/
 /src/test/resources/
-
+src/main/resources/application.properties
 ### STS ###
 .apt_generated
 .classpath
@@ -33,3 +33,4 @@ build/
 
 ### VS Code ###
 .vscode/
+./a

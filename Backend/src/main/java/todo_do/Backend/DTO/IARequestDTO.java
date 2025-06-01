@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LlamaRequestDTO {
+public class IARequestDTO {
     private String prompt;
 
     public String getPrompt() {

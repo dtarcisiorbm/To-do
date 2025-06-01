@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { authService, LoginCredentials } from "@/services/authService";
-
-import { UserDTO, RegisterData } from "@/services/authService";
+import { authService, LoginCredentials, RegisterData } from "@/services/authService";
+import { userService, UpdateUserData } from "@/services/userService";
+import { UserDTO } from "@/services/authService";
 
 type User = UserDTO;
 
@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   error: string | null;
+  updateUser: (data: UpdateUserData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -96,19 +97,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: authService.isAuthenticated(),
-        login,
-        register,
-        logout,
-        loading,
-        error,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const updateUser = async (data: UpdateUserData) => {
+    try {
+      const updatedUser = await userService.updateUser(data);
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
+    }
+  };
+
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    loading,
+    error,
+    updateUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

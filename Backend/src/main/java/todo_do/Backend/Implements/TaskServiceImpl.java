@@ -9,6 +9,7 @@ import todo_do.Backend.Domain.Task.Task;
 import todo_do.Backend.Domain.User.User;
 import todo_do.Backend.Repository.TaskRepository;
 import todo_do.Backend.Repository.UserRepository;
+import todo_do.Backend.Services.IAServices;
 import todo_do.Backend.Services.TaskServices;
 
 import java.time.LocalDate;
@@ -24,13 +25,15 @@ public class TaskServiceImpl implements TaskServices {
     private TaskRepository taskRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private IAServices iaServices;
 
     private User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("User not authenticated");
         }
-        
+
         var userId = UUID.fromString(authentication.getName());
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -69,6 +72,7 @@ public class TaskServiceImpl implements TaskServices {
             )).collect(Collectors.toList());
         }
     }
+
     @Override
     public List<TaskDTO> getTaskId(UUID id) {
 
@@ -100,7 +104,6 @@ public class TaskServiceImpl implements TaskServices {
     }
 
 
-
     @Override
     public List<TaskDTO> getTasksByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -117,7 +120,9 @@ public class TaskServiceImpl implements TaskServices {
         User currentUser = getCurrentUser();
         task.setUser(currentUser);
         task.setCompleted(false);
+
         taskRepository.save(task);
+        iaServices.sendEmail(task.getId());
     }
 
     @Override
