@@ -28,7 +28,7 @@ public class IAController {
     }
     @PostMapping("/check-availability")
 public String checkAvailability(@RequestBody Map<String, Object> payload) {
-        System.out.println("Payload recebido: " + payload);
+
         try {
             String date = (String) payload.get("date");
             List<Task> horarios = (List<Task>) payload.get("horariosOcupados");

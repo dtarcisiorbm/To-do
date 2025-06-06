@@ -1,7 +1,13 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios, { InternalAxiosRequestConfig, AxiosError } from "axios";
+import { authService } from "./authService";
 import { Task } from "../types/task";
 
 const API_URL = import.meta.env.DEV ? "/api" : "http://localhost:8080";
+
+interface QueueItem {
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -11,43 +17,106 @@ const api = axios.create({
   withCredentials: false,
 });
 
+// Flag para controlar se já está renovando o token
+let isRefreshing = false;
+let failedQueue: QueueItem[] = [];
+
+const processQueue = (error: Error | null = null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 // Interceptor para adicionar o token de autenticação
 api.interceptors.request.use(
-  (
-    config: InternalAxiosRequestConfig<any>
-  ): InternalAxiosRequestConfig<any> => {
-    const token = localStorage.getItem("accessToken");
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const token = authService.getToken();
     if (token) {
       config.headers.set("Authorization", `Bearer ${token}`);
     }
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     return Promise.reject(error);
   }
 );
 
-// Interceptador para tratamento de erros
+// Interceptador para tratamento de erros e renovação de token
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    if (error.response) {
-      // Erro de autenticação
-      if (error.response.status === 401) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise<unknown>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (typeof token === "string") {
+              originalRequest.headers["Authorization"] = "Bearer " + token;
+              return api(originalRequest);
+            }
+            return Promise.reject(new Error("Invalid token"));
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = authService.getRefreshToken();
+
+      if (!refreshToken) {
+        processQueue(new Error("No refresh token"));
+        authService.logout();
         window.location.href = "/login";
+        return Promise.reject(error);
       }
 
-      // Erro de CORS
-      if (error.response.status === 0 && error.message.includes("CORS")) {
-        console.error("Erro de CORS: Verifique a configuração do servidor");
-      }
+      try {
+        const response = await api.post<{
+          accessToken: string;
+          refreshToken: string;
+        }>("/user/refresh", {
+          refreshToken: refreshToken,
+        });
 
-      return Promise.reject(error.response.data);
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+          response.data;
+
+        authService.setTokens(newAccessToken, newRefreshToken);
+
+        processQueue(null, newAccessToken);
+
+        originalRequest.headers["Authorization"] = "Bearer " + newAccessToken;
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(
+          refreshError instanceof Error ? refreshError : new Error("Refresh failed"),
+          null
+        );
+        authService.logout();
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
-    return Promise.reject(error);
+    if (error.response?.status === 0 && error.message.includes("CORS")) {
+      console.error("Erro de CORS: Verifique a configuração do servidor");
+    }
+
+    return Promise.reject(error.response?.data || error);
   }
 );
 
@@ -60,7 +129,7 @@ export const taskService = {
     const response = await api.get(`/task/${id}`);
     return response.data;
   },
-    async getTaskDate(date: Date): Promise<Task[]> {
+  async getTaskDate(date: Date): Promise<Task[]> {
     const response = await api.get(`/task/date/${date}`);
     return response.data;
   },
