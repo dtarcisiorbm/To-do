@@ -13,6 +13,7 @@ import todo_do.Backend.Services.IAServices;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/llama")
@@ -38,4 +39,17 @@ public String checkAvailability(@RequestBody Map<String, Object> payload) {
             return "Erro ao processar solicitação";
         }
     }
+    @PostMapping("/generate-task/{userId}")
+    public String generateLanguageTask(@RequestBody IARequestDTO request, @PathVariable String userId) {
+
+        try {
+
+            return IAServices.generateTaskFromLanguage(request.getPrompt(), userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao processar solicitação";
+        }
+    }
 }
+
+

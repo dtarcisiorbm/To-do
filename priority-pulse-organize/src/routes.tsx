@@ -8,6 +8,7 @@ import CalendarView from "@/pages/CalendarView";
 import NewTask from "@/pages/NewTask";
 import EditTask from "@/pages/EditTask";
 import NotFound from "@/pages/NotFound";
+import ChatPage from "@/pages/ChatPage";
 
 const router = createBrowserRouter([
   {
@@ -44,12 +45,7 @@ const router = createBrowserRouter([
         path: "new-task",
         element: <NewTask />,
       },
-      {
-        path: "edit-task/:id",
-        element: <EditTask />,
-      },
-      {
-        path: "*",
+      {        path: "edit-task/:id",        element: <EditTask />,      },      {        path: "chat",        element: <ChatPage />,      },      {        path: "*",
         element: <NotFound />,
       },
     ],

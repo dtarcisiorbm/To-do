@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, List, UserCog } from "lucide-react";
+import { Calendar, List, UserCog, MessageSquare } from "lucide-react";
 import { EditUserDialog } from "@/components/user/EditUserDialog";
 import {
   Sidebar,
@@ -83,6 +83,23 @@ const AppSidebar = () => {
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   <span>Calendar View</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Chat</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  className={isActive("/chat") ? "bg-accent" : ""}
+                  onClick={() => navigate("/chat")}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>Chat Assistant</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

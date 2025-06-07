@@ -46,11 +46,11 @@ public class Task {
     private User user;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+
     private LocalDateTime updatedAt;
 
     @PrePersist
