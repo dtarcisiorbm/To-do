@@ -146,6 +146,11 @@ export const taskService = {
   async deleteTask(taskId: string): Promise<void> {
     await api.delete(`/task/${taskId}`);
   },
+
+  async generateTask(userId: string, description: string): Promise<Task> {
+    const response = await api.post(`/generate-task/${userId}`, { description });
+    return response.data;
+  },
 };
 
 export const llamaService = {
