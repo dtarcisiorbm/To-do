@@ -3,7 +3,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import { llamaService } from "@/services/api";
+import { iaService } from "@/services/api";
 
 interface AppLayoutProps {
   children: React.ReactNode;

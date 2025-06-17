@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
+import { RootLayout } from "@/components/layout/RootLayout";
 import LoginPage from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { PrivateRoute } from "@/components/PrivateRoute";
@@ -12,41 +13,55 @@ import ChatPage from "@/pages/ChatPage";
 
 const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/register",
-    element: <RegisterPage />,
-  },
-  {
-    path: "/",
-    element: (
-      <PrivateRoute>
-        <AppLayout>
-          <Outlet />
-        </AppLayout>
-      </PrivateRoute>
-    ),
+    element: <RootLayout />,
     children: [
       {
-        index: true,
-        element: <Navigate to="/tasks" replace />,
+        path: "/login",
+        element: <LoginPage />,
       },
       {
-        path: "tasks",
-        element: <ListView />,
+        path: "/register",
+        element: <RegisterPage />,
       },
       {
-        path: "calendar",
-        element: <CalendarView />,
-      },
-      {
-        path: "new-task",
-        element: <NewTask />,
-      },
-      {        path: "edit-task/:id",        element: <EditTask />,      },      {        path: "chat",        element: <ChatPage />,      },      {        path: "*",
-        element: <NotFound />,
+        path: "/",
+        element: (
+          <PrivateRoute>
+            <AppLayout>
+              <Outlet />
+            </AppLayout>
+          </PrivateRoute>
+        ),
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/tasks" replace />,
+          },
+          {
+            path: "tasks",
+            element: <ListView />,
+          },
+          {
+            path: "calendar",
+            element: <CalendarView />,
+          },
+          {
+            path: "new-task",
+            element: <NewTask />,
+          },
+          {
+            path: "edit-task/:id",
+            element: <EditTask />,
+          },
+          {
+            path: "chat",
+            element: <ChatPage />,
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
+        ],
       },
     ],
   },

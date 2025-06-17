@@ -4,10 +4,13 @@ import { DayPicker, SelectSingleEventHandler } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { llamaService, taskService } from "@/services/api"; // Importar llamaService
+// Importar llamaService
 import { useState, useEffect } from "react"; // Importar useState e useEffect
 import { Task } from "@/types/task"; // Importar o tipo Task
 import { format } from "date-fns";
+
+import { iaService } from "@/services/iaService";
+import { taskService } from "@/services/taskService";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
 	selected: Date | undefined;
@@ -29,62 +32,35 @@ function Calendar({
 	const [availableTimes, setAvailableTimes] = useState<[]>([]); // Estado para horários disponíveis
 	const [isLoadingTimes, setIsLoadingTimes] = useState(false); // Estado para loading
 	useEffect(() => {
-		const fetchAvailability = async () => {
+		const checkAvailability = async () => {
 			if (selected) {
 				setIsLoadingTimes(true);
-				if (onAvailabilityChange) {
-					onAvailabilityChange([], true);
-				} // Notify parent about loading state safely
-
-				// Processar a lista de tarefas para obter horários ocupados na data selecionada
-				const occupiedTimesForSelectedDate = tasks
-					.filter(
-						(task) =>
-							task.dueDate &&
-							new Date(task.dueDate).toDateString() === selected.toDateString(),
-					)
-					.map((task) =>
-						format(new Date(task.dueDate!).toDateString(), "HH:mm"),
-					);
-
-				const taskDates = await taskService.getTaskDate(new Date(selected));
 				try {
-					// Chamar a API com a data selecionada e horários ocupados
-					const result = await llamaService.checkAvailability(
-						new Date(selected).toISOString().split("T")[0],
+					const taskDates = await taskService.getTasksByDate(selected);
+					const formattedDate = format(selected, "yyyy-MM-dd");
+					const availabilityResponse = await iaService.checkAvailability(
+						formattedDate,
 						taskDates,
 					);
 
-					if (result) {
-						setAvailableTimes(result);
-						if (onAvailabilityChange) {
-							onAvailabilityChange(result, false);
-						}
-					} else {
-						setAvailableTimes([]);
-						if (onAvailabilityChange) {
-							onAvailabilityChange([], false);
-						} // Notify parent with empty data safely
+					// Processar a resposta em formato de string para array
+					const times = availabilityResponse.split(",").map((time) => time.trim());
+
+					if (onAvailabilityChange) {
+						onAvailabilityChange(times, false);
 					}
 				} catch (error) {
-					console.log("Erro ao buscar horários disponíveis:", error);
-					console.error("Erro ao buscar horários disponíveis:", error);
-					setAvailableTimes([]);
+					console.error("Error checking availability:", error);
 					if (onAvailabilityChange) {
 						onAvailabilityChange([], false);
-					} // Notify parent about error safely
+					}
 				} finally {
 					setIsLoadingTimes(false);
 				}
-			} else {
-				setAvailableTimes([]);
-				if (onAvailabilityChange) {
-					onAvailabilityChange([], false);
-				} // Notify parent when no date is selected safely
 			}
 		};
 
-		fetchAvailability();
+		checkAvailability();
 	}, [selected, onAvailabilityChange, tasks]); // Executar efeito quando a data selecionada ou a lista de tarefas mudar
 
 	return (

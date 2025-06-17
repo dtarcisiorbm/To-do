@@ -1,8 +1,6 @@
 package todo_do.Backend.Controller;
 
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/llama")
+@RequestMapping("/api/ia")
 @PreAuthorize("hasRole('USER')")
 public class IAController {
 
@@ -25,10 +23,12 @@ public class IAController {
 
     @PostMapping
     public IAResponseDTO generateAnswer(@RequestBody IARequestDTO request) {
+        System.out.println("Gerando resposta com IA para o prompt: " + request.getPrompt());
         return IAServices.generateDescription(request.getPrompt());
     }
+
     @PostMapping("/check-availability")
-public String checkAvailability(@RequestBody Map<String, Object> payload) {
+    public String checkAvailability(@RequestBody Map<String, Object> payload) {
 
         try {
             String date = (String) payload.get("date");
@@ -39,9 +39,10 @@ public String checkAvailability(@RequestBody Map<String, Object> payload) {
             return "Erro ao processar solicitação";
         }
     }
+
     @PostMapping("/generate-task/{userId}")
     public String generateLanguageTask(@RequestBody IARequestDTO request, @PathVariable String userId) {
-
+        System.out.println("Gerando tarefa com IA para o usuário: " + userId);
         try {
 
             return IAServices.generateTaskFromLanguage(request.getPrompt(), userId);

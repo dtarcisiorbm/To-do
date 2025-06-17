@@ -3,11 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import TaskForm from "@/components/tasks/TaskForm";
 import { Task } from "@/types/task";
-import { llamaService, taskService } from "@/services/api";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./NewTask";
 import { z } from "zod";
+import { iaService } from "@/services/iaService";
+import { taskService } from "@/services/taskService";
 
 const EditTask = () => {
   const navigate = useNavigate();
@@ -40,7 +42,7 @@ const EditTask = () => {
     }
     setIsGenerating(true);
     try {
-      const result = await llamaService.generateDescription(title);
+      const result = await iaService.generateAnswer(title);
       if (result?.response) {
         form.setValue("description", result.response);
       } else {
@@ -65,7 +67,7 @@ const EditTask = () => {
     const fetchTask = async () => {
       try {
         if (!id) return;
-        const taskData = await taskService.getTaskId(id);
+        const taskData = await taskService.getTask(id);
         console.log(taskData);
         setTask(taskData[0]);
       } catch (err) {

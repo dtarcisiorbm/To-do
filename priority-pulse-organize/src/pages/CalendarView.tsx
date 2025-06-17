@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Task } from "@/types/task";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { taskService } from "@/services/api";
+
 import {
 	Dialog,
 	DialogContent,
@@ -17,6 +17,8 @@ import {
 // Import the calendar styles
 import "react-calendar/dist/Calendar.css";
 import { Calendar } from "@/components/ui/calendar";
+import { taskService } from "@/services/taskService";
+
 
 const CalendarView = () => {
 	const navigate = useNavigate();

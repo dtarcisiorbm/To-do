@@ -5,12 +5,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
-import { taskService, llamaService } from "@/services/api";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TaskForm from "@/components/tasks/TaskForm";
 import { Task } from "@/types/task"; // Importar o tipo Task
 import { useState, useEffect } from "react"; // Importar useEffect
+import { iaService } from "@/services/iaService";
+import { taskService } from "@/services/taskService";
 
 export const formSchema = z.object({
   title: z.string().min(1, { message: "Título é obrigatório" }),
@@ -45,7 +47,7 @@ const NewTask = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const allTasks = await taskService.getTasks();
+        const allTasks = await taskService.getAllTasks();
         setTasks(allTasks);
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
@@ -98,7 +100,7 @@ const NewTask = () => {
     }
     setIsGenerating(true);
     try {
-      const result = await llamaService.generateDescription(title);
+      const result = await iaService.generateAnswer(title);
       if (result?.response) {
         form.setValue("description", result.response);
       } else {

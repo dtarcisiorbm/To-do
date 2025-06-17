@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/select";
 import type { Task, Priority } from "@/types/task";
 import TaskList from "@/components/tasks/TaskList";
-import { taskService } from "@/services/api";
+
 import { useAuth } from "@/contexts/AuthContext";
+import { taskService } from "@/services/taskService";
 
 const ListView = () => {
 	const navigate = useNavigate();

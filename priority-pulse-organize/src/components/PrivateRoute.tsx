@@ -6,13 +6,24 @@ interface PrivateRouteProps {
 }
 
 export function PrivateRoute({ children }: PrivateRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
-    // Redireciona para a página de login, mantendo a URL original como state
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // Se ainda está carregando, mostra um loading
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="text-lg">Carregando...</div>
+      </div>
+    );
   }
 
-  return children;
+  // Se não está autenticado, redireciona para o login
+  if (!isAuthenticated) {
+    // Salva a localização atual para redirecionar de volta após o login
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+
+  // Se está autenticado, renderiza o conteúdo protegido
+  return <>{children}</>;
 }

@@ -1,12 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-  authService,
-  LoginCredentials,
-  RegisterData,
-} from "@/services/authService";
+import { authService, LoginCredentials, RegisterData } from "@/services/authService";
 import { userService, UpdateUserData } from "@/services/userService";
 import { UserDTO } from "@/services/authService";
-import api from "@/services/api";
 
 type User = UserDTO;
 
@@ -34,58 +29,62 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Começa como true para indicar o carregamento inicial
+  const [loading, setLoading] = useState(true); // Começa como true
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado para controlar a autenticação
-  // Função para validar o token e buscar dados do usuário
-  const validateSession = async () => {
-    try {
-      const token = authService.getToken();
-      const refreshToken = authService.getRefreshToken();
+  const [initialized, setInitialized] = useState(false);
 
-      if (!token || !refreshToken) {
-        throw new Error("No tokens found");
+  // Verificar se existe um token salvo ao iniciar
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const token = authService.getToken();
+        const savedUser = localStorage.getItem("user");
+
+        if (token && savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        authService.logout();
+      } finally {
+        setLoading(false);
+        setInitialized(true);
       }
+    };
 
-      // Tentar buscar os dados do usuário
-      const response = await api.get("/user/me");
-      const userData = response.data;
+    initializeAuth();
+  }, []);
 
-      setUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem("user", JSON.stringify(userData));
-      return true;
-    } catch (error) {
-      console.error("Error validating session:", error);
-      authService.logout();
-      setUser(null);
-      setIsAuthenticated(false);
-      return false;
+  const login = async (credentials: LoginCredentials) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await authService.login(credentials);
+      authService.setTokens(response.accessToken, response.refreshToken);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      setUser(response.user);
+      window.location.replace("/");
+    } catch (err) {
+      setError("Falha no login. Verifique suas credenciais.");
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  // Efeito para inicializar a autenticação
-  useEffect(() => {
-    validateSession();
-  }, []);
-
-  const login = async (credentials: LoginCredentials) => {
+  const register = async (data: RegisterData) => {
     try {
-      setLoading(true);
       setError(null);
-
-      const response = await authService.login(credentials);
-
+      setLoading(true);
+      const response = await authService.register(data);
       authService.setTokens(response.accessToken, response.refreshToken);
-      setUser(response.user);
-      setIsAuthenticated(true);
       localStorage.setItem("user", JSON.stringify(response.user));
-    } catch (error) {
-      setError("Falha na autenticação. Verifique suas credenciais.");
-      setIsAuthenticated(false);
-      throw error;
+      setUser(response.user);
+      window.location.replace("/");
+    } catch (err) {
+      setError("Falha no registro. Tente novamente.");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -94,44 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     authService.logout();
     setUser(null);
-    setIsAuthenticated(false);
-    setError(null);
-    window.location.href = "/login"; // Redireciona explicitamente para a página de login
-  };
-
-  const register = async (data: RegisterData) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await authService.register(data);
-
-      authService.setTokens(response.accessToken, response.refreshToken);
-      setUser(response.user);
-      localStorage.setItem("user", JSON.stringify(response.user));
-    } catch (error) {
-      setError("Falha no registro. Verifique seus dados.");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    window.location.replace("/login");
   };
 
   const updateUser = async (data: UpdateUserData) => {
     try {
       setLoading(true);
-      setError(null);
       const updatedUser = await userService.updateUser(data);
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
-    } catch (error) {
-      console.error("Error updating user:", error);
-      setError("Falha ao atualizar usuário. Tente novamente.");
-      throw error;
     } finally {
       setLoading(false);
     }
   };
+
+  // Só considera autenticado se já inicializou, tem usuário e token
+  const isAuthenticated = initialized && !!user && !!authService.getToken();
+
+  // Não renderiza nada até a inicialização estar completa
+  if (!initialized) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider
@@ -146,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateUser,
       }}
     >
-      {loading ? <div>Carregando...</div> : children}
+      {children}
     </AuthContext.Provider>
   );
 }

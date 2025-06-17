@@ -5,8 +5,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { SendHorizontal, Bot } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { taskService } from '@/services/api';
+
 import { useToast } from '@/hooks/use-toast';
+import { taskService } from '@/services/taskService';
+import { iaService } from '@/services/iaService';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,13 +32,13 @@ const ChatPage = () => {
     setIsLoading(true);
 
     try {
-      const task = await taskService.generateTask(user.id, input);
-      const assistantMessage = { 
-        role: 'assistant' as const, 
-        content: `✅ Tarefa criada com sucesso!\n\nTítulo: ${task.title}\nDescrição: ${task.description}\nData: ${new Date(task.dueDate).toLocaleString()}\nPrioridade: ${task.priority}` 
+      const task = await iaService.generateTaskFromLanguage(input, user.id,);
+      const assistantMessage = {
+        role: 'assistant' as const,
+        content: `✅ Tarefa criada com sucesso!\n\nTítulo: ${task.title}\nDescrição: ${task.description}\nData: ${new Date(task.dueDate).toLocaleString()}\nPrioridade: ${task.priority}`
       };
       setMessages(prev => [...prev, assistantMessage]);
-      
+
       toast({
         title: 'Tarefa criada',
         description: 'Sua tarefa foi criada com sucesso!',

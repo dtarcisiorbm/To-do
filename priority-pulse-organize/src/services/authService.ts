@@ -1,4 +1,6 @@
-import api from "./api";
+import axios from "axios";
+
+const API_URL = import.meta.env.DEV ? "/api" : "http://localhost:8080";
 
 export interface LoginCredentials {
   username: string;
@@ -14,7 +16,7 @@ export interface UserDTO {
   username: string;
   email: string;
   role: string;
-  phone?: string; // Campo opcional pois usuários existentes podem não ter
+  phone?: string;
 }
 
 export interface AuthResponse {
@@ -26,12 +28,15 @@ export interface AuthResponse {
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/user/auth", credentials);
+    const response = await axios.post<AuthResponse>(
+      `${API_URL}/user/auth`,
+      credentials
+    );
     return response.data;
   },
 
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/user", data);
+    const response = await axios.post<AuthResponse>(`${API_URL}/user`, data);
     return response.data;
   },
 
@@ -52,9 +57,5 @@ export const authService = {
 
   getRefreshToken(): string | null {
     return localStorage.getItem("refreshToken");
-  },
-
-  isAuthenticated(): boolean {
-    return !!this.getToken();
   },
 };

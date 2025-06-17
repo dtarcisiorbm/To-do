@@ -37,9 +37,9 @@ public class IAServices {
 
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/description"))
+                    .uri(URI.create("http://localhost:5678/webhook-test/description"))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(100))
+                    .timeout(Duration.ofSeconds(160))
                     .POST(HttpRequest.BodyPublishers.ofString(escapedPrompt))
                     .build();
 
@@ -86,7 +86,7 @@ public class IAServices {
                     
                     """.formatted(escapedPrompt);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/date"))
+                    .uri(URI.create("http://localhost:5678/webhook/date"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(escapedPrompt))
                     .timeout(Duration.ofSeconds(100))
@@ -120,9 +120,9 @@ public class IAServices {
             String requestBody = "{\"taskId\":\"" + taskId + "\"}";
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook-test/email"))
+                    .uri(URI.create("hhttp://localhost:5678/webhook/email"))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(100))
+                    .timeout(Duration.ofSeconds(160))
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
@@ -162,9 +162,9 @@ public class IAServices {
             ));
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://nery-automa-n8n.dlivfa.easypanel.host/webhook/languagetask"))
+                    .uri(URI.create("http://localhost:5678/webhook-test/languagetask"))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(100))
+                    .timeout(Duration.ofSeconds(160))
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 

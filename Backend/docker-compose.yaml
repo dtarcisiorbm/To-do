@@ -1,10 +1,33 @@
+version: '3.7'
+
 services:
-  postgres:
-    container_name: to-do-list
-    image: postgres:17
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: container-n8n
     ports:
-      - "5430:5430"
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgres
+      - DB_POSTGRESDB_HOST=to-do-list # Aponta para o serviço abaixo
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=todo_list_db
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=12345678
+    depends_on:
+      - postgres_db
+
+  postgres_db: # Renomeei o serviço para não confundir com a imagem
+    image: postgres
+    container_name: to-do-list
+    restart: always
+    ports:
+      - "5430:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345678
       - POSTGRES_DB=todo_list_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

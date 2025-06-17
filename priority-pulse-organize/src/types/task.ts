@@ -19,4 +19,10 @@ export interface Task {
   priority: Priority;
   dueDate: Date | null;
   createdAt: Date;
+  userId?: string; // ID do usuário dono da task
+  assignedTo?: string; // ID do usuário designado para a task (se aplicável)
+  status?: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  comments?: string[];
+  attachments?: string[];
+  tags?: string[];
 }
